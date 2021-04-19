@@ -1,9 +1,10 @@
 import React from 'react'
-import { Modal } from 'react-native'
-import { colors } from '../../styles/colors'
-import { Button } from '../Button'
+import { Modal, TouchableWithoutFeedback } from 'react-native'
 
+import { Button } from '../Button'
 import { InputTextLabel } from '../InputTextLabel'
+
+import { colors } from '../../styles/colors'
 
 import {
 	Container,
@@ -14,20 +15,22 @@ import {
 	NewScheduleButtonText,
 	InputsContainer,
 	ButtonsContainer,
-	CancelButton,
-	CancelButtonText,
-	SaveButton,
-	SaveButtonText,
 } from './styles'
 
 interface RegisterStudentModalProps {
 	isVisible: boolean
+	onClose: () => void
 }
 
-export function RegisterStudentModal({ isVisible }: RegisterStudentModalProps) {
+export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModalProps) {
 
 	return (
-		<Modal transparent visible={isVisible}>
+		<Modal
+			animationType="fade"
+			visible={isVisible}
+			onRequestClose={onClose}
+			transparent
+		>
 			<Container>
 				<ModalItem>
 					<SectionTitle style={{ marginBottom: 18 }}>Dados</SectionTitle>
@@ -50,10 +53,10 @@ export function RegisterStudentModal({ isVisible }: RegisterStudentModalProps) {
 						/>
 					</InputsContainer>
 					<ButtonsContainer>
-						<Button color={colors.red}>
+						<Button color={colors.red} onPress={onClose} activeOpacity={0.7}>
 							Cancelar
 						</Button>
-						<Button color={colors.green}>
+						<Button color={colors.green} activeOpacity={0.7}>
 							Salvar
 						</Button>
 					</ButtonsContainer>

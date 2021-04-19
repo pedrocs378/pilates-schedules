@@ -24,7 +24,11 @@ export function Students() {
 
 	return (
 		<Container>
-			<RegisterStudentModal isVisible={isModalVisible} />
+			<RegisterStudentModal
+				isVisible={isModalVisible}
+				onClose={() => setIsModalVisible(false)}
+			/>
+
 			<ScrollView showsVerticalScrollIndicator={false}>
 				<InputContainer>
 					<FeatherIcon name="search" color={colors.gray300} size={20} />
