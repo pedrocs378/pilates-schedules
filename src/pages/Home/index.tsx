@@ -20,7 +20,7 @@ export function Home() {
 
 	return (
 		<Container>
-			<StatusBar style="auto" backgroundColor={colors.blue} />
+			<StatusBar style="auto" translucent backgroundColor="transparent" />
 
 			<Header>
 				<Title>Aulas - 19/04/2021</Title>

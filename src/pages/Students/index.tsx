@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { ScrollView } from 'react-native-gesture-handler'
 import FeatherIcon from 'react-native-vector-icons/Feather'
+
+import { RegisterStudentModal } from '../../components/RegisterStudentModal'
 
 import { colors } from '../../styles/colors'
 
@@ -18,13 +20,14 @@ import {
 } from './styles'
 
 export function Students() {
+	const [isModalVisible, setIsModalVisible] = useState(false)
 
 	return (
 		<Container>
-			<ScrollView showsVerticalScrollIndicator={false} >
+			<RegisterStudentModal isVisible={isModalVisible} />
+			<ScrollView showsVerticalScrollIndicator={false}>
 				<InputContainer>
 					<FeatherIcon name="search" color={colors.gray300} size={20} />
-
 					<Input
 						placeholder="Procurar aluno..."
 						placeholderTextColor={colors.gray300}
@@ -63,7 +66,7 @@ export function Students() {
 					</StudentClassDays>
 				</StudentItem>
 			</ScrollView>
-			<RegisterStudentButton>
+			<RegisterStudentButton onPress={() => setIsModalVisible(true)}>
 				<FeatherIcon name="plus" color={colors.white} size={25} />
 			</RegisterStudentButton>
 		</Container>
