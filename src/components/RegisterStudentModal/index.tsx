@@ -1,5 +1,7 @@
 import React from 'react'
 import { Modal } from 'react-native'
+import { colors } from '../../styles/colors'
+import { Button } from '../Button'
 
 import { InputTextLabel } from '../InputTextLabel'
 
@@ -48,12 +50,12 @@ export function RegisterStudentModal({ isVisible }: RegisterStudentModalProps) {
 						/>
 					</InputsContainer>
 					<ButtonsContainer>
-						<CancelButton>
-							<CancelButtonText>Cancelar</CancelButtonText>
-						</CancelButton>
-						<SaveButton>
-							<SaveButtonText>Salvar</SaveButtonText>
-						</SaveButton>
+						<Button color={colors.red}>
+							Cancelar
+						</Button>
+						<Button color={colors.green}>
+							Salvar
+						</Button>
 					</ButtonsContainer>
 				</ModalItem>
 			</Container>
