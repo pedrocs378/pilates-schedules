@@ -1,22 +1,18 @@
-import React, { useCallback, useState } from 'react'
+import React from 'react'
 import { StyleProp, ViewStyle } from 'react-native'
 import { Picker } from '@react-native-picker/picker'
+import { PickerProps } from '@react-native-picker/picker/typings/Picker'
 
 import { Container, Label, PickerWrapper } from './styles'
 
 import { colors } from '../../styles/colors'
 
-interface InputLabel {
+interface InputSelectLabel extends PickerProps {
 	labelText: string
 	style?: StyleProp<ViewStyle>
 }
 
-export function InputSelectLabel({ labelText, style = {} }: InputLabel) {
-	const [selectedDayOfWeek, setSelectedDayOfWeek] = useState('')
-
-	const handleChangeSelectedDay = useCallback((value: string) => {
-		setSelectedDayOfWeek(value)
-	}, [])
+export function InputSelectLabel({ labelText, style = {}, ...rest }: InputSelectLabel) {
 
 	return (
 		<Container style={style}>
@@ -24,9 +20,8 @@ export function InputSelectLabel({ labelText, style = {} }: InputLabel) {
 			<PickerWrapper>
 				<Picker
 					mode="dropdown"
-					selectedValue={selectedDayOfWeek}
-					onValueChange={handleChangeSelectedDay}
 					style={{ backgroundColor: 'transparent' }}
+					{...rest}
 				>
 					<Picker.Item label="Selecione o dia" value="" color={colors.gray400} />
 					<Picker.Item label="Segunda-feira" value="Segunda-feira" color={colors.black} />

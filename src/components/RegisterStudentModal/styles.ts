@@ -1,5 +1,5 @@
 import styled from 'styled-components/native'
-import { RectButton } from 'react-native-gesture-handler'
+import { ScrollView } from 'react-native-gesture-handler'
 
 import { colors } from '../../styles/colors'
 import fonts from '../../styles/fonts'
@@ -11,17 +11,19 @@ export const Container = styled.View`
 	background-color: rgba(230, 230, 230, 0.85);
 `
 
-export const ModalItem = styled.View`
+export const ModalItem = styled(ScrollView)`
 	width: 90%;
 	background-color: ${colors.white};
 	border-radius: 8px;
-	padding: 25px 15px;
+	padding: 0 15px;
+	margin: 20px 0;
 `
 
 export const SectionTitle = styled.Text`
 	font-family: ${fonts.complement};
 	font-size: 20px;
 	color: ${colors.black};
+	margin-top: 25px;
 `
 
 export const SectionTitleContainer = styled.View`
@@ -31,7 +33,7 @@ export const SectionTitleContainer = styled.View`
 	margin: 18px 0;
 `
 
-export const NewScheduleButton = styled(RectButton)`
+export const NewScheduleButton = styled.TouchableOpacity`
 	flex-direction: row;
 	align-items: center;
 `
@@ -47,10 +49,11 @@ export const NewScheduleButtonText = styled.Text`
 export const InputsContainer = styled.View`
 	flex-direction: row;
 	align-items: center;
+	margin-bottom: 10px;
 `
 
 export const ButtonsContainer = styled.View`
-	margin-top: 38px;
+	margin: 28px 0;
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
