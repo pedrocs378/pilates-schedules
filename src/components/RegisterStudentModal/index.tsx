@@ -14,7 +14,12 @@ import {
 	SectionTitleContainer,
 	NewScheduleButton,
 	NewScheduleButtonText,
+	Schedule,
 	InputsContainer,
+	DeleteScheduleContainer,
+	Separator,
+	DeleteScheduleButton,
+	DeleteScheduleButtonText,
 	ButtonsContainer,
 } from './styles'
 
@@ -39,11 +44,6 @@ const initialSchedules: Schedule[] = [
 
 export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModalProps) {
 	const [schedules, setSchedules] = useState<Schedule[]>(initialSchedules)
-	const [selectedDayOfWeek, setSelectedDayOfWeek] = useState('')
-
-	const handleChangeSelectedDay = useCallback((value: string) => {
-		setSelectedDayOfWeek(value)
-	}, [])
 
 	function handleCancelRegister() {
 		setSchedules(initialSchedules)
@@ -57,6 +57,17 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 			hour: ''
 		}])
 	}
+
+	const handleRemoveSchedule = useCallback((id: number) => {
+		if (schedules.length === 1) {
+			setSchedules(initialSchedules)
+
+			return
+		}
+		const newSchedules = schedules.filter(schedule => schedule.id !== id)
+
+		setSchedules(newSchedules)
+	}, [schedules])
 
 	return (
 		<Modal
@@ -79,16 +90,27 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 						</SectionTitleContainer>
 						{schedules.map(schedule => {
 							return (
-								<InputsContainer key={schedule.id}>
-									<InputSelectLabel
-										style={{ width: '70%' }}
-										labelText="Dia da semana"
-									/>
-									<InputTextLabel
-										style={{ width: '27%', marginLeft: 'auto' }}
-										labelText="Hora"
-									/>
-								</InputsContainer>
+								<Schedule key={schedule.id}>
+									<InputsContainer>
+										<InputSelectLabel
+											style={{ width: '70%' }}
+											labelText="Dia da semana"
+										/>
+										<InputTextLabel
+											style={{ width: '27%', marginLeft: 'auto' }}
+											labelText="Hora"
+										/>
+									</InputsContainer>
+									<DeleteScheduleContainer>
+										<Separator />
+
+										<DeleteScheduleButton onPress={() => handleRemoveSchedule(schedule.id)}>
+											<DeleteScheduleButtonText>Excluir horário</DeleteScheduleButtonText>
+										</DeleteScheduleButton>
+
+										<Separator />
+									</DeleteScheduleContainer>
+								</Schedule>
 							)
 						})}
 						<ButtonsContainer>
