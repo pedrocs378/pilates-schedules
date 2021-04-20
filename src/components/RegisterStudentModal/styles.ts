@@ -55,4 +55,3 @@ export const ButtonsContainer = styled.View`
 	justify-content: space-between;
 	align-items: center;
 `
-

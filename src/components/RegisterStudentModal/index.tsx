@@ -16,6 +16,7 @@ import {
 	InputsContainer,
 	ButtonsContainer,
 } from './styles'
+import { InputSelectLabel } from '../InputSelectLabel'
 
 interface RegisterStudentModalProps {
 	isVisible: boolean
@@ -44,7 +45,7 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 							</NewScheduleButton>
 						</SectionTitleContainer>
 						<InputsContainer>
-							<InputTextLabel
+							<InputSelectLabel
 								style={{ width: '70%' }}
 								labelText="Dia da semana"
 							/>
