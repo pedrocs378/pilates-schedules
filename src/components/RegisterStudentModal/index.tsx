@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, TouchableWithoutFeedback } from 'react-native'
+import { Keyboard, Modal, TouchableWithoutFeedback, View } from 'react-native'
 
 import { Button } from '../Button'
 import { InputTextLabel } from '../InputTextLabel'
@@ -32,35 +32,37 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 			transparent
 		>
 			<Container>
-				<ModalItem>
-					<SectionTitle style={{ marginBottom: 18 }}>Dados</SectionTitle>
-					<InputTextLabel labelText="Nome" />
-					<InputTextLabel labelText="Celular (Somente números)" />
-					<SectionTitleContainer>
-						<SectionTitle>Horários</SectionTitle>
-						<NewScheduleButton>
-							<NewScheduleButtonText>+  Novo horário</NewScheduleButtonText>
-						</NewScheduleButton>
-					</SectionTitleContainer>
-					<InputsContainer>
-						<InputTextLabel
-							style={{ width: '70%' }}
-							labelText="Dia da semana"
-						/>
-						<InputTextLabel
-							style={{ width: '27%', marginLeft: 'auto' }}
-							labelText="Hora"
-						/>
-					</InputsContainer>
-					<ButtonsContainer>
-						<Button color={colors.red} onPress={onClose} activeOpacity={0.7}>
-							Cancelar
-						</Button>
-						<Button color={colors.green} activeOpacity={0.7}>
-							Salvar
-						</Button>
-					</ButtonsContainer>
-				</ModalItem>
+				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+					<ModalItem>
+						<SectionTitle style={{ marginBottom: 18 }}>Dados</SectionTitle>
+						<InputTextLabel labelText="Nome" />
+						<InputTextLabel labelText="Celular (Somente números)" />
+						<SectionTitleContainer>
+							<SectionTitle>Horários</SectionTitle>
+							<NewScheduleButton>
+								<NewScheduleButtonText>+  Novo horário</NewScheduleButtonText>
+							</NewScheduleButton>
+						</SectionTitleContainer>
+						<InputsContainer>
+							<InputTextLabel
+								style={{ width: '70%' }}
+								labelText="Dia da semana"
+							/>
+							<InputTextLabel
+								style={{ width: '27%', marginLeft: 'auto' }}
+								labelText="Hora"
+							/>
+						</InputsContainer>
+						<ButtonsContainer>
+							<Button color={colors.red} onPress={onClose} activeOpacity={0.7}>
+								Cancelar
+							</Button>
+							<Button color={colors.green} activeOpacity={0.7}>
+								Salvar
+							</Button>
+						</ButtonsContainer>
+					</ModalItem>
+				</TouchableWithoutFeedback>
 			</Container>
 		</Modal>
 	)

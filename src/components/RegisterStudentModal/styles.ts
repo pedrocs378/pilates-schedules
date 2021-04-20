@@ -2,9 +2,10 @@ import styled from 'styled-components/native'
 import { RectButton } from 'react-native-gesture-handler'
 
 import { colors } from '../../styles/colors'
+import fonts from '../../styles/fonts'
 
 export const Container = styled.View`
-	flex: 1;
+	flex: 2;
 	align-items: center;
 	justify-content: center;
 	background-color: rgba(230, 230, 230, 0.85);
@@ -18,7 +19,7 @@ export const ModalItem = styled.View`
 `
 
 export const SectionTitle = styled.Text`
-	font-family: 'Poppins_500Medium';
+	font-family: ${fonts.complement};
 	font-size: 20px;
 	color: ${colors.black};
 `
@@ -39,7 +40,7 @@ export const NewScheduleButtonText = styled.Text`
 	margin-left: 8px;
 	line-height: 26px;
 	color: ${colors.blue};
-	font-family: 'Poppins_600SemiBold';
+	font-family: ${fonts.heading};
 	font-size: 14px;
 `
 
@@ -53,36 +54,5 @@ export const ButtonsContainer = styled.View`
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
-`
-
-export const CancelButton = styled(RectButton)`
-	background-color: ${colors.red};
-	border-radius: 8px;
-	height: 50px;
-	width: 46%;
-	align-items: center;
-	justify-content: center;
-`
-
-export const CancelButtonText = styled.Text`
-	font-family: 'Poppins_600SemiBold';
-	font-size: 16px;
-	color: ${colors.white};
-`
-
-export const SaveButton = styled(RectButton)`
-	background-color: ${colors.green};
-	border-radius: 8px;
-	height: 50px;
-	width: 46%;
-	align-items: center;
-	justify-content: center;
-`
-
-export const SaveButtonText = styled.Text`
-	font-family: 'Poppins_600SemiBold';
-	font-size: 16px;
-	color: ${colors.white};
-	
 `
 

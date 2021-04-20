@@ -1,6 +1,7 @@
 import styled from 'styled-components/native'
 
 import { colors } from '../../styles/colors'
+import fonts from '../../styles/fonts'
 
 export const Container = styled.TouchableOpacity`
 	border-radius: 8px;
@@ -11,7 +12,7 @@ export const Container = styled.TouchableOpacity`
 `
 
 export const ButtonText = styled.Text`
-	font-family: 'Poppins_600SemiBold';
+	font-family: ${fonts.heading};
 	font-size: 16px;
 	color: ${colors.white};
 `

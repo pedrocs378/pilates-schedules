@@ -1,13 +1,14 @@
 import styled from 'styled-components/native'
 
 import { colors } from '../../styles/colors'
+import fonts from '../../styles/fonts'
 
 export const Container = styled.View`
 	margin-bottom: 8px;
 `
 
 export const Label = styled.Text`
-	font-family: 'Poppins_400Regular';
+	font-family: ${fonts.text};
 	font-size: 14px;
 	color: ${colors.gray400};
 `
@@ -20,7 +21,7 @@ export const Input = styled.TextInput`
 	border-radius: 8px;
 	padding: 0 20px;
 
-	font-family: 'Poppins_400Regular';
+	font-family: ${fonts.text};
 	font-size: 14px;
 	color: ${colors.black};
 `

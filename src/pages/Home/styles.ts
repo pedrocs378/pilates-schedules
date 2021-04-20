@@ -1,8 +1,9 @@
 import styled from 'styled-components/native'
+import { RectButton } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { colors } from '../../styles/colors'
-import { RectButton } from 'react-native-gesture-handler'
+import fonts from '../../styles/fonts'
 
 export const Container = styled(SafeAreaView)`
 	flex: 1;
@@ -19,7 +20,7 @@ export const Header = styled.View`
 `
 
 export const Title = styled.Text`
-	font-family: 'Poppins_600SemiBold';
+	font-family: ${fonts.heading};
 	font-size: 18px;
 	margin: 0 auto;
 	color: ${colors.white};
@@ -36,7 +37,7 @@ export const Class = styled(RectButton)`
 `
 
 export const Time = styled.Text`
-	font-family: 'Poppins_500Medium';
+	font-family: ${fonts.complement};
 	font-size: 16px;
 	color: ${colors.yellow};
 	align-self: center;
@@ -54,7 +55,7 @@ export const ClassStudents = styled.View`
 `
 
 export const Student = styled.Text`
-	font-family: 'Poppins_500Medium';
+	font-family: ${fonts.complement};
 	font-size: 14px;
 	color: ${colors.black};
 	flex-basis: 45%;

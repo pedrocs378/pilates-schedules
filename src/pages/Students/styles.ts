@@ -1,8 +1,9 @@
 import styled from 'styled-components/native'
+import { RectButton } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { colors } from '../../styles/colors'
-import { RectButton } from 'react-native-gesture-handler'
+import fonts from '../../styles/fonts'
 
 export const Container = styled(SafeAreaView)`
 	flex: 1;
@@ -23,7 +24,7 @@ export const InputContainer = styled.View`
 export const Input = styled.TextInput`
 	flex: 1;
 	margin-left: 12px;
-	font-family: 'Poppins_400Regular';
+	font-family: ${fonts.text};
 	font-size: 14px;
 	color: ${colors.black};
 `
@@ -44,12 +45,12 @@ export const StudentInfo = styled.View`
 `
 
 export const StudentName = styled.Text`
-	font-family: 'Poppins_600SemiBold';
+	font-family: ${fonts.heading};
 	font-size: 16px;
 `
 
 export const StudentPhone = styled.Text`
-	font-family: 'Poppins_400Regular';
+	font-family: ${fonts.text};
 	font-size: 14px;
 	color: ${colors.gray400};
 `
@@ -65,7 +66,7 @@ export const StudentClassDays = styled.View`
 
 export const DayOfWeek = styled.Text`
 	text-align: center;
-	font-family: 'Poppins_400Regular';
+	font-family: ${fonts.text};
 	font-size: 12px;
 `
 
