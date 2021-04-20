@@ -27,7 +27,6 @@ export function InputSelectLabel({ labelText, style = {} }: InputLabel) {
 					selectedValue={selectedDayOfWeek}
 					onValueChange={handleChangeSelectedDay}
 					style={{ backgroundColor: 'transparent' }}
-					dropdownIconColor="#000000"
 				>
 					<Picker.Item label="Selecione o dia" value="" color={colors.gray400} />
 					<Picker.Item label="Segunda-feira" value="Segunda-feira" color={colors.black} />
