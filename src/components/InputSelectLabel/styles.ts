@@ -4,7 +4,7 @@ import { colors } from '../../styles/colors'
 import fonts from '../../styles/fonts'
 
 export const Container = styled.View`
-	margin-bottom: 8px;
+	margin-bottom: 16px;
 `
 
 export const Label = styled.Text`

@@ -22,6 +22,7 @@ import {
 	DeleteScheduleButtonText,
 	ButtonsContainer,
 } from './styles'
+import { InputTextLabelMasked } from '../InputTextLabel/InputTextLabelMasked'
 
 interface Schedule {
 	id: number
@@ -43,10 +44,14 @@ const initialSchedules: Schedule[] = [
 ]
 
 export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModalProps) {
+	const [name, setName] = useState('')
+	const [phone, setPhone] = useState('')
 	const [schedules, setSchedules] = useState<Schedule[]>(initialSchedules)
 
 	function handleCancelRegister() {
 		setSchedules(initialSchedules)
+		setName('')
+		setPhone('')
 		onClose()
 	}
 
@@ -56,6 +61,10 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 			dayOfWeek: '',
 			hour: ''
 		}])
+	}
+
+	function handleChangePhone(text: string) {
+		setPhone(text)
 	}
 
 	const handleRemoveSchedule = useCallback((id: number) => {
@@ -69,6 +78,36 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 		setSchedules(newSchedules)
 	}, [schedules])
 
+	const handleChangeHour = useCallback((id: number, value: string) => {
+		const schedulesEdited = schedules.map(schedule => {
+			if (schedule.id === id) {
+				return {
+					...schedule,
+					hour: value
+				}
+			}
+
+			return schedule
+		})
+
+		setSchedules(schedulesEdited)
+	}, [schedules])
+
+	const handleChangeDayOfWeek = useCallback((id: number, value: string) => {
+		const schedulesEdited = schedules.map(schedule => {
+			if (schedule.id === id) {
+				return {
+					...schedule,
+					dayOfWeek: value
+				}
+			}
+
+			return schedule
+		})
+
+		setSchedules(schedulesEdited)
+	}, [schedules])
+
 	return (
 		<Modal
 			animationType="fade"
@@ -80,8 +119,22 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 					<ModalItem>
 						<SectionTitle style={{ marginBottom: 18 }}>Dados</SectionTitle>
-						<InputTextLabel labelText="Nome" />
-						<InputTextLabel labelText="Celular (Somente números)" />
+						<InputTextLabel
+							labelText="Nome"
+							value={name}
+							onChangeText={text => setName(text)}
+							autoCapitalize="words"
+							selectTextOnFocus
+						/>
+						<InputTextLabelMasked
+							type="cel-phone"
+							labelText="Celular (Somente números)"
+							selectTextOnFocus
+							keyboardType="phone-pad"
+							placeholder="(18) 9xxxx-xxxx"
+							value={phone}
+							onChangeText={handleChangePhone}
+						/>
 						<SectionTitleContainer>
 							<SectionTitle>Horários</SectionTitle>
 							<NewScheduleButton onPress={handleInsertNewSchedule}>
@@ -95,10 +148,18 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 										<InputSelectLabel
 											style={{ width: '70%' }}
 											labelText="Dia da semana"
+											onValueChange={(value) => handleChangeDayOfWeek(schedule.id, value as string)}
+											selectedValue={schedule.dayOfWeek}
 										/>
 										<InputTextLabel
 											style={{ width: '27%', marginLeft: 'auto' }}
 											labelText="Hora"
+											keyboardType="numeric"
+											autoCorrect={false}
+											maxLength={2}
+											selectTextOnFocus
+											onChangeText={value => handleChangeHour(schedule.id, value)}
+											value={schedule.hour}
 										/>
 									</InputsContainer>
 									<DeleteScheduleContainer>
