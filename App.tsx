@@ -4,6 +4,8 @@ import AppLoading from 'expo-app-loading'
 import { enableScreens } from 'react-native-screens'
 import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold } from '@expo-google-fonts/poppins'
 
+import { DaysOfWeekProvider } from './src/contexts/daysOfWeek';
+
 import { Routes } from './src/routes';
 
 enableScreens()
@@ -20,6 +22,8 @@ export default function App() {
   }
 
   return (
-    <Routes />
+    <DaysOfWeekProvider>
+      <Routes />
+    </DaysOfWeekProvider>
   );
 }

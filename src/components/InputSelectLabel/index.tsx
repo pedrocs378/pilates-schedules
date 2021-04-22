@@ -3,9 +3,10 @@ import { StyleProp, ViewStyle } from 'react-native'
 import { Picker } from '@react-native-picker/picker'
 import { PickerProps } from '@react-native-picker/picker/typings/Picker'
 
-import { Container, Label, PickerWrapper } from './styles'
-
 import { colors } from '../../styles/colors'
+
+import { Container, Label, PickerWrapper } from './styles'
+import { useDaysOfWeek } from '../../contexts/daysOfWeek'
 
 interface InputSelectLabel extends PickerProps {
 	labelText: string
@@ -13,6 +14,7 @@ interface InputSelectLabel extends PickerProps {
 }
 
 export function InputSelectLabel({ labelText, style = {}, ...rest }: InputSelectLabel) {
+	const daysOfWeek = useDaysOfWeek()
 
 	return (
 		<Container style={style}>
@@ -23,11 +25,13 @@ export function InputSelectLabel({ labelText, style = {}, ...rest }: InputSelect
 					style={{ backgroundColor: 'transparent' }}
 					{...rest}
 				>
-					<Picker.Item label="Selecione o dia" value="" color={colors.gray400} />
-					<Picker.Item label="Segunda-feira" value="Segunda-feira" color={colors.black} />
-					<Picker.Item label="Terça-feira" value="Terça-feira" color={colors.black} />
-					<Picker.Item label="Quarta-feira" value="Quarta-feira" color={colors.black} />
-					<Picker.Item label="Quinta-feira" value="Quinta-feira" color={colors.black} />
+					<Picker.Item label="Selecione o dia" value={-1} color={colors.gray400} />
+
+					{daysOfWeek.map(day => {
+						return (
+							<Picker.Item key={day.id} label={day.dayWeek} value={day.numberWeek} color={colors.black} />
+						)
+					})}
 				</Picker>
 			</PickerWrapper>
 		</Container>

@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { ScrollView } from 'react-native-gesture-handler'
 import FeatherIcon from 'react-native-vector-icons/Feather'
 import Prismic from '@prismicio/client'
+import { request } from 'graphql-request'
 
 import { RegisterStudentModal } from '../../components/RegisterStudentModal'
 import { getPrismicClient } from '../../services/prismic'
@@ -22,6 +23,7 @@ import {
 	DayOfWeek,
 	RegisterStudentButton,
 } from './styles'
+import { getGraphCMSClient } from '../../services/graphcms'
 
 interface StudentSchedules {
 	dayofweek: {
@@ -44,33 +46,30 @@ export function Students() {
 	const [isModalVisible, setIsModalVisible] = useState(false)
 
 	useEffect(() => {
-		const prismic = getPrismicClient()
+		async function fetchStudents() {
+			try {
+				const graphcms = getGraphCMSClient()
 
-		prismic
-			.query(Prismic.predicates.at('document.type', 'students'), { pageSize: 10, 'fetchLinks': 'days_of_week.value' })
-			.then(response => {
-				const studentsData = response.results.map(student => {
-					const schedules = student.data.schedules.map((schedule: any) => {
-						return {
-							dayofweek: {
-								key: schedule.dayofweek.uid,
-								value: schedule.dayofweek.data.value.split('-')[0]
-							},
-							time: schedule.time
-						}
-					})
-
-					return {
-						id: student.id,
-						name: student.data.name.length > 25 ? `${student.data.name.substring(0, 25)}...` : student.data.name,
-						phone: student.data.phone ?? 'Não informado',
-						schedules
+				const response = await graphcms.request(
+					`
+				{
+					students {
+						id
+						name
+						phone
 					}
-				})
+				}
+				  
+				`
+				)
 
-				setStudents(studentsData)
-			})
-			.finally(() => setLoading(false))
+				setStudents(response.students)
+			} finally {
+				setLoading(false)
+			}
+		}
+
+		fetchStudents()
 	}, [])
 
 	if (loading) {
@@ -104,7 +103,7 @@ export function Students() {
 								<StudentPhone>{student.phone}</StudentPhone>
 							</StudentInfo>
 							<StudentClassDays>
-								{student.schedules.map(schedule => {
+								{student.schedules && student.schedules.map(schedule => {
 									return (
 										<DayOfWeek key={schedule.dayofweek.key}>
 											{schedule.dayofweek.value}

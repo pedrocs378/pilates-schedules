@@ -27,7 +27,7 @@ export function Home() {
 	const navigation = useNavigation()
 
 	function handleChangeClassDate(_: any, selectedDate: Date | undefined) {
-		setShowCalendar(false)
+		setShowCalendar(oldValue => !oldValue)
 
 		const currentDate = selectedDate || classDate
 		setClassDate(currentDate)
@@ -49,7 +49,7 @@ export function Home() {
 
 			<Header>
 				<Title>{title}</Title>
-				<TouchableWithoutFeedback onPress={() => setShowCalendar(true)}>
+				<TouchableWithoutFeedback onPress={() => setShowCalendar(oldValue => !oldValue)}>
 					<FontAwesomeIcon name="calendar-alt" color={colors.white} size={23} />
 				</TouchableWithoutFeedback>
 			</Header>

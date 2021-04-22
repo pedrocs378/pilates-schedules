@@ -1,8 +1,10 @@
 import React, { useCallback, useState } from 'react'
-import { Keyboard, Modal, TouchableWithoutFeedback } from 'react-native'
+import { Keyboard, Modal, ToastAndroid, TouchableWithoutFeedback } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { format } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
+
+import { publishStudent } from '../../services/graphcms'
 
 import { Button } from '../Button'
 import { InputTextLabel } from '../InputTextLabel'
@@ -43,18 +45,18 @@ interface RegisterStudentModalProps {
 	onClose: () => void
 }
 
-const initialId = Math.random()
+const initialScheduleId = Math.random()
 
 const initialSchedules: ScheduleProps[] = [
 	{
-		id: initialId,
+		id: initialScheduleId,
 		dayOfWeek: '',
 		time: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours() - 3, 0)
 	}
 ]
 
 const initialScheduleCalendar = {
-	[initialId]: false
+	[initialScheduleId]: false
 }
 
 export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModalProps) {
@@ -63,7 +65,21 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 	const [schedules, setSchedules] = useState<ScheduleProps[]>(initialSchedules)
 	const [showCalendar, setShowCalendar] = useState<ShowScheduleCalendar>(initialScheduleCalendar)
 
-	function handleCancelRegister() {
+	async function handleSubmit() {
+		try {
+			await publishStudent({
+				name,
+				phone
+			})
+
+			ToastAndroid.show('Cadastro realizado com sucesso', ToastAndroid.LONG)
+			closeModal()
+		} catch (err) {
+			ToastAndroid.show('Erro ao cadastrar aluno', ToastAndroid.LONG)
+		}
+	}
+
+	function closeModal() {
 		setSchedules(initialSchedules)
 		setName('')
 		setPhone('')
@@ -209,10 +225,10 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 							)
 						})}
 						<ButtonsContainer>
-							<Button color={colors.red} onPress={handleCancelRegister} activeOpacity={0.7}>
+							<Button color={colors.red} onPress={closeModal} activeOpacity={0.7}>
 								Cancelar
 							</Button>
-							<Button color={colors.green} activeOpacity={0.7}>
+							<Button color={colors.green} onPress={handleSubmit} activeOpacity={0.7}>
 								Salvar
 							</Button>
 						</ButtonsContainer>
