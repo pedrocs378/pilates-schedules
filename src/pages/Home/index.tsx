@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { StatusBar } from 'expo-status-bar'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5'
@@ -27,9 +27,10 @@ export function Home() {
 	const navigation = useNavigation()
 
 	function handleChangeClassDate(_: any, selectedDate: Date | undefined) {
+		setShowCalendar(false)
+
 		const currentDate = selectedDate || classDate
 		setClassDate(currentDate)
-		setShowCalendar(false)
 	}
 
 	const handleGoToClassSchedule = useCallback(() => {

@@ -63,7 +63,7 @@ export function Students() {
 					return {
 						id: student.id,
 						name: student.data.name.length > 25 ? `${student.data.name.substring(0, 25)}...` : student.data.name,
-						phone: student.data.phone,
+						phone: student.data.phone ?? 'Não informado',
 						schedules
 					}
 				})

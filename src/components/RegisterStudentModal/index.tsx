@@ -1,9 +1,14 @@
 import React, { useCallback, useState } from 'react'
 import { Keyboard, Modal, TouchableWithoutFeedback } from 'react-native'
+import DateTimePicker from '@react-native-community/datetimepicker'
+import { format } from 'date-fns'
+import ptBR from 'date-fns/locale/pt-BR'
 
 import { Button } from '../Button'
 import { InputTextLabel } from '../InputTextLabel'
 import { InputSelectLabel } from '../InputSelectLabel'
+import { InputTextLabelMasked } from '../InputTextLabel/InputTextLabelMasked'
+import { InputButtonLabel } from '../InputButtonLabel'
 
 import { colors } from '../../styles/colors'
 
@@ -22,12 +27,15 @@ import {
 	DeleteScheduleButtonText,
 	ButtonsContainer,
 } from './styles'
-import { InputTextLabelMasked } from '../InputTextLabel/InputTextLabelMasked'
 
-interface Schedule {
+interface ScheduleProps {
 	id: number
 	dayOfWeek: string
-	hour: string
+	time: Date
+}
+
+interface ShowScheduleCalendar {
+	[id: number]: boolean
 }
 
 interface RegisterStudentModalProps {
@@ -35,18 +43,25 @@ interface RegisterStudentModalProps {
 	onClose: () => void
 }
 
-const initialSchedules: Schedule[] = [
+const initialId = Math.random()
+
+const initialSchedules: ScheduleProps[] = [
 	{
-		id: Math.random(),
+		id: initialId,
 		dayOfWeek: '',
-		hour: ''
+		time: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours() - 3, 0)
 	}
 ]
+
+const initialScheduleCalendar = {
+	[initialId]: false
+}
 
 export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModalProps) {
 	const [name, setName] = useState('')
 	const [phone, setPhone] = useState('')
-	const [schedules, setSchedules] = useState<Schedule[]>(initialSchedules)
+	const [schedules, setSchedules] = useState<ScheduleProps[]>(initialSchedules)
+	const [showCalendar, setShowCalendar] = useState<ShowScheduleCalendar>(initialScheduleCalendar)
 
 	function handleCancelRegister() {
 		setSchedules(initialSchedules)
@@ -59,7 +74,7 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 		setSchedules([...schedules, {
 			id: Math.random(),
 			dayOfWeek: '',
-			hour: ''
+			time: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours() - 3, 0)
 		}])
 	}
 
@@ -78,19 +93,33 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 		setSchedules(newSchedules)
 	}, [schedules])
 
-	const handleChangeHour = useCallback((id: number, value: string) => {
-		const schedulesEdited = schedules.map(schedule => {
-			if (schedule.id === id) {
-				return {
-					...schedule,
-					hour: value
-				}
-			}
+	const handleOpenDateTimePicker = useCallback((id: number) => {
+		setShowCalendar({
+			...showCalendar,
+			[id]: true
+		})
+	}, [])
 
-			return schedule
+	const handleChangeTime = useCallback((id: number, time: Date | undefined) => {
+		setShowCalendar({
+			...showCalendar,
+			[id]: false
 		})
 
-		setSchedules(schedulesEdited)
+		if (time) {
+			const schedulesEdited = schedules.map(schedule => {
+				if (schedule.id === id) {
+					return {
+						...schedule,
+						time
+					}
+				}
+
+				return schedule
+			})
+
+			setSchedules(schedulesEdited)
+		}
 	}, [schedules])
 
 	const handleChangeDayOfWeek = useCallback((id: number, value: string) => {
@@ -151,16 +180,21 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 											onValueChange={(value) => handleChangeDayOfWeek(schedule.id, value as string)}
 											selectedValue={schedule.dayOfWeek}
 										/>
-										<InputTextLabel
+										<InputButtonLabel
 											style={{ width: '27%', marginLeft: 'auto' }}
 											labelText="Hora"
-											keyboardType="numeric"
-											autoCorrect={false}
-											maxLength={2}
-											selectTextOnFocus
-											onChangeText={value => handleChangeHour(schedule.id, value)}
-											value={schedule.hour}
+											value={format(schedule.time, 'HH:mm', { locale: ptBR })}
+											onPress={() => handleOpenDateTimePicker(schedule.id)}
 										/>
+
+										{showCalendar[schedule.id] && (
+											<DateTimePicker
+												value={schedule.time}
+												mode="time"
+												display="default"
+												onChange={(_, selectedDate) => handleChangeTime(schedule.id, selectedDate)}
+											/>
+										)}
 									</InputsContainer>
 									<DeleteScheduleContainer>
 										<Separator />
