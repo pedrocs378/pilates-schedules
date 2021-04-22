@@ -16,7 +16,9 @@ import {
 	StudentName,
 	StudentAbsenceControlContainer,
 	AbsenceControl,
-	AbsenceControlText
+	AbsenceControlText,
+	RescheduleButton,
+	RescheduleButtonText,
 } from './styles'
 
 export function ClassSchedule() {
@@ -78,6 +80,9 @@ export function ClassSchedule() {
 								<AbsenceControlText>Não irá comparecer</AbsenceControlText>
 							</AbsenceControl>
 						</StudentAbsenceControlContainer>
+						<RescheduleButton activeOpacity={0.8}>
+							<RescheduleButtonText>Remarcar</RescheduleButtonText>
+						</RescheduleButton>
 					</Student>
 				</ClassStudentsCard>
 			</Content>

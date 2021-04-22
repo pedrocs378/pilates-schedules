@@ -74,3 +74,19 @@ export const AbsenceControlText = styled.Text`
 	font-size: 12px;
 `
 
+export const RescheduleButton = styled.TouchableOpacity`
+	height: 40px;
+	width: 100%;
+	align-items: center;
+	justify-content: center;
+	background-color: ${colors.blue};
+	border-radius: 5px;
+	margin-top: 10px;
+`
+
+export const RescheduleButtonText = styled.Text`
+	font-family: ${fonts.heading};
+	font-size: 14px;
+	color: ${colors.white};
+`
+
