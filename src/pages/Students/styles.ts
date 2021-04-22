@@ -75,9 +75,9 @@ export const RegisterStudentButton = styled(RectButton)`
 	bottom: 10px;
 	right: 10px;
 	background-color: ${colors.blue};
-	height: 40px;
-	width: 40px;
-	border-radius: 20px;
+	height: 42px;
+	width: 42px;
+	border-radius: 21px;
 
 	align-items: center;
 	justify-content: center;

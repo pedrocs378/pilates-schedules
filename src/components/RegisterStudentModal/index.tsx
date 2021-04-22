@@ -139,6 +139,7 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 	}, [schedules])
 
 	const handleChangeDayOfWeek = useCallback((id: number, value: string) => {
+		console.log(value)
 		const schedulesEdited = schedules.map(schedule => {
 			if (schedule.id === id) {
 				return {
@@ -162,7 +163,7 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 		>
 			<Container>
 				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-					<ModalItem>
+					<ModalItem showsVerticalScrollIndicator={false}>
 						<SectionTitle style={{ marginBottom: 18 }}>Dados</SectionTitle>
 						<InputTextLabel
 							labelText="Nome"

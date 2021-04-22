@@ -26,11 +26,10 @@ import {
 import { getGraphCMSClient } from '../../services/graphcms'
 
 interface StudentSchedules {
-	dayofweek: {
-		key: string
-		value: string
+	id: string
+	dayOfWeek: {
+		dayWeek: string
 	}
-	time: string
 }
 
 interface Student {
@@ -57,13 +56,33 @@ export function Students() {
 						id
 						name
 						phone
+						schedules {
+							id
+							dayOfWeek {
+								dayWeek
+							}
+						}
 					}
 				}
 				  
 				`
 				)
+				const studentsParsed = response.students.map((student: any) => {
+					return {
+						...student,
+						name: student.name.length > 25 ? `${student.name.substring(0, 25)}...` : student.name,
+						schedules: student.schedules.map((schedule: any) => {
+							return {
+								...schedule,
+								dayOfWeek: {
+									dayWeek: schedule.dayOfWeek.dayWeek.split('-')[0]
+								}
+							}
+						})
+					}
+				})
 
-				setStudents(response.students)
+				setStudents(studentsParsed)
 			} finally {
 				setLoading(false)
 			}
@@ -105,8 +124,8 @@ export function Students() {
 							<StudentClassDays>
 								{student.schedules && student.schedules.map(schedule => {
 									return (
-										<DayOfWeek key={schedule.dayofweek.key}>
-											{schedule.dayofweek.value}
+										<DayOfWeek key={schedule.id}>
+											{schedule.dayOfWeek.dayWeek}
 										</DayOfWeek>
 									)
 								})}

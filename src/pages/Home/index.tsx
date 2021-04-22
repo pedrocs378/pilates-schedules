@@ -52,8 +52,7 @@ export function Home() {
 				<TouchableWithoutFeedback onPress={() => setShowCalendar(oldValue => !oldValue)}>
 					<FontAwesomeIcon name="calendar-alt" color={colors.white} size={23} />
 				</TouchableWithoutFeedback>
-			</Header>
-			<Content>
+
 				{showCalendar && (
 					<DateTimePicker
 						value={classDate}
@@ -63,7 +62,8 @@ export function Home() {
 						minimumDate={new Date()}
 					/>
 				)}
-
+			</Header>
+			<Content>
 				<Class onPress={handleGoToClassSchedule}>
 					<Time>16:00</Time>
 					<ClassStudents>

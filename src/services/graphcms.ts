@@ -1,8 +1,14 @@
 import { GraphQLClient } from 'graphql-request'
 
+type Schedule = {
+	time: Date
+	dayOfWeekId: string
+}
+
 type PublicStudentProps = {
 	name: string
 	phone?: string
+	schedules?: Schedule[]
 }
 
 export function getGraphCMSClient() {
@@ -15,7 +21,7 @@ export function getGraphCMSClient() {
 	return client
 }
 
-export async function publishStudent({ name, phone }: PublicStudentProps) {
+export async function publishStudent({ name, phone, schedules }: PublicStudentProps) {
 	const graphcms = getGraphCMSClient()
 
 	const { createStudent } = await graphcms.request(
