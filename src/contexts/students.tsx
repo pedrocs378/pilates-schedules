@@ -2,7 +2,7 @@ import React, { createContext, ReactNode, useContext, useEffect, useState } from
 
 import { getGraphCMSClient } from '../services/graphcms'
 
-interface StudentSchedules {
+export interface StudentSchedules {
 	id: string
 	time: Date
 	dayOfWeek: {
@@ -11,17 +11,23 @@ interface StudentSchedules {
 	}
 }
 
-interface Student {
+export interface Student {
 	id: string
 	name: string
 	phone: string
 	schedules: StudentSchedules[]
 }
 
+type PublicStudentProps = {
+	name: string
+	phone?: string
+}
+
 interface StudentContextData {
 	isErrored: boolean
 	isLoading: boolean
 	students: Student[]
+	publishStudent: (student: PublicStudentProps) => Promise<void>
 }
 
 interface StudentProvider {
@@ -31,9 +37,9 @@ interface StudentProvider {
 const StudentContext = createContext<StudentContextData>({} as StudentContextData)
 
 export function StudentProvider({ children }: StudentProvider) {
+	const [students, setStudents] = useState<Student[]>([])
 	const [isErrored, setIsErrored] = useState(false)
 	const [isLoading, setIsLoading] = useState(true)
-	const [students, setStudents] = useState<Student[]>([])
 
 	useEffect(() => {
 		async function fetchStudents() {
@@ -73,8 +79,30 @@ export function StudentProvider({ children }: StudentProvider) {
 		fetchStudents()
 	}, [])
 
+	async function publishStudent({ name, phone }: PublicStudentProps) {
+		const graphcms = getGraphCMSClient()
+
+		const { createStudent } = await graphcms.request(
+			`mutation {
+				createStudent(data: { name: "${name}", phone: "${phone}" }) {
+					  id
+					name
+					phone
+				}
+			}`
+		)
+
+		await graphcms.request(
+			`mutation {
+				publishStudent(where: { id: "${createStudent.id}" }, to: PUBLISHED) {
+					id
+				}
+			}`
+		);
+	}
+
 	return (
-		<StudentContext.Provider value={{ isLoading, isErrored, students }}>
+		<StudentContext.Provider value={{ isLoading, isErrored, students, publishStudent }}>
 			{children}
 		</StudentContext.Provider>
 	)

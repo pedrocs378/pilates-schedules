@@ -4,8 +4,6 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import { format } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
 
-import { publishStudent } from '../../services/graphcms'
-
 import { Button } from '../Button'
 import { InputTextLabel } from '../InputTextLabel'
 import { InputSelectLabel } from '../InputSelectLabel'
@@ -29,6 +27,7 @@ import {
 	DeleteScheduleButtonText,
 	ButtonsContainer,
 } from './styles'
+import { useStudents } from '../../contexts/students'
 
 interface ScheduleProps {
 	id: number
@@ -64,6 +63,8 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 	const [phone, setPhone] = useState('')
 	const [schedules, setSchedules] = useState<ScheduleProps[]>(initialSchedules)
 	const [showCalendar, setShowCalendar] = useState<ShowScheduleCalendar>(initialScheduleCalendar)
+
+	const { publishStudent } = useStudents()
 
 	async function handleSubmit() {
 		try {

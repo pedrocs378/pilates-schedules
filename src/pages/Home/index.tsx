@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { FlatList } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5'
 import { useNavigation } from '@react-navigation/core'
 import DateTimePicker from '@react-native-community/datetimepicker'
-import { format } from 'date-fns'
+import { format, isToday } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
 
 import { useStudents } from '../../contexts/students'
@@ -17,11 +18,12 @@ import {
 	Container,
 	Header,
 	Title,
-	Content,
 	Class,
 	Time,
 	ClassStudents,
 	Student,
+	WithoutClassesMessageBox,
+	WithoutClassesMessageBoxText
 } from './styles'
 
 interface StudentProps {
@@ -89,6 +91,10 @@ export function Home() {
 	}, [classDate, students])
 
 	const title = useMemo(() => {
+		if (isToday(classDate)) {
+			return 'Aulas - Hoje'
+		}
+
 		return format(classDate, "'Aulas -' dd/MM/yyyy", {
 			locale: ptBR
 		})
@@ -120,20 +126,30 @@ export function Home() {
 					/>
 				)}
 			</Header>
-			<Content>
-				{classStudents.length > 0 && classStudents.map(classItem => {
-					return (
-						<Class key={classItem.time} activeOpacity={0.7} onPress={handleGoToClassSchedule}>
-							<Time>{classItem.time}</Time>
+			{classStudents.length === 0 && (
+				<WithoutClassesMessageBox>
+					<WithoutClassesMessageBoxText>Sem aulas agendadas hoje 😄</WithoutClassesMessageBoxText>
+				</WithoutClassesMessageBox>
+			)}
+
+			{classStudents.length > 0 && (
+				<FlatList
+					showsHorizontalScrollIndicator={false}
+					contentContainerStyle={{ flex: 1 }}
+					data={classStudents}
+					keyExtractor={(item) => item.time}
+					renderItem={({ item }) => (
+						<Class key={item.time} activeOpacity={0.7} onPress={handleGoToClassSchedule}>
+							<Time>{item.time}</Time>
 							<ClassStudents>
-								{classItem.students.map(student => (
+								{item.students.map(student => (
 									<Student key={student.id}>{student.name}</Student>
 								))}
 							</ClassStudents>
 						</Class>
-					)
-				})}
-			</Content>
+					)}
+				/>
+			)}
 		</Container>
 	)
 }

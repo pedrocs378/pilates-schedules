@@ -6,7 +6,8 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5'
 import { RegisterStudentModal } from '../../components/RegisterStudentModal'
 import { Load } from '../../components/Load'
 
-import { useStudents } from '../../contexts/students'
+import { getGraphCMSClient } from '../../services/graphcms'
+import { useStudents, Student } from '../../contexts/students'
 
 import { colors } from '../../styles/colors'
 
@@ -25,12 +26,39 @@ import {
 } from './styles'
 
 export function Students() {
-	const [isModalVisible, setIsModalVisible] = useState(false)
-	const [isParsing, setIsParsing] = useState(true)
 	const { isLoading, students } = useStudents()
 
+	const [studentsToBeShow, setStudentsToBeShow] = useState<Student[]>(students)
+	const [isModalVisible, setIsModalVisible] = useState(false)
+	const [isParsing, setIsParsing] = useState(true)
+
+	async function handleSearchStudent(name: string) {
+		const graphcms = getGraphCMSClient()
+
+		const response = await graphcms.request(
+			`
+		{
+			students(where: { name_contains: "${name}" }) {
+				id
+				name
+				phone
+				schedules {
+					id
+					dayOfWeek {
+						dayWeek
+					}
+				}
+			}
+		}
+			
+		`
+		)
+
+		setStudentsToBeShow(response.students)
+	}
+
 	const studentsParsed = useMemo(() => {
-		return students.map((student, index) => {
+		return studentsToBeShow.map((student, index) => {
 			if (index === students.length - 1) {
 				setIsParsing(false)
 			}
@@ -49,7 +77,7 @@ export function Students() {
 				})
 			}
 		})
-	}, [students])
+	}, [studentsToBeShow])
 
 	if (isLoading || isParsing) {
 		return (
@@ -70,6 +98,7 @@ export function Students() {
 					<Input
 						placeholder="Procurar aluno..."
 						placeholderTextColor={colors.gray600}
+						onChangeText={handleSearchStudent}
 					/>
 				</InputContainer>
 				{studentsParsed.map(student => {

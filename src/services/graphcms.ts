@@ -1,16 +1,5 @@
 import { GraphQLClient } from 'graphql-request'
 
-type Schedule = {
-	time: Date
-	dayOfWeekId: string
-}
-
-type PublicStudentProps = {
-	name: string
-	phone?: string
-	schedules?: Schedule[]
-}
-
 export function getGraphCMSClient() {
 	const client = new GraphQLClient('https://api-ca-central-1.graphcms.com/v2/cknsaorj80lmm01wj82fp39i4/master', {
 		headers: {
@@ -19,32 +8,4 @@ export function getGraphCMSClient() {
 	})
 
 	return client
-}
-
-export async function publishStudent({ name, phone, schedules }: PublicStudentProps) {
-	const graphcms = getGraphCMSClient()
-
-	const { createStudent } = await graphcms.request(
-		`mutation {
-			createStudent(data: { name: "${name}", phone: "${phone}" }) {
-			  	id
-				name
-				phone
-			}
-		}`
-	)
-
-	await graphcms.request(
-		`mutation {
-			publishStudent(where: { id: "${createStudent.id}" }, to: PUBLISHED) {
-				id
-			}
-		}`
-	);
-
-	return {
-		id: createStudent.id,
-		name: createStudent.name,
-		phone: createStudent.phone
-	}
 }

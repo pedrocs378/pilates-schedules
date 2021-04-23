@@ -25,8 +25,16 @@ export const Title = styled.Text`
 	color: ${colors.white};
 `
 
-export const Content = styled.ScrollView`
+export const WithoutClassesMessageBox = styled.View`
 	flex: 1;
+	align-items: center;
+	justify-content: center;
+`
+
+export const WithoutClassesMessageBoxText = styled.Text`
+	font-family: ${fonts.heading};
+	font-size: 15px;
+	color: ${colors.gray400};
 `
 
 export const Class = styled.TouchableOpacity`
