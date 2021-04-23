@@ -7,8 +7,7 @@ import fonts from '../../styles/fonts'
 
 export const Container = styled(SafeAreaView)`
 	flex: 1;
-	margin: 0;
-	padding: 0;
+	background-color: ${colors.white};
 `
 
 export const Header = styled.View`
@@ -30,7 +29,7 @@ export const Content = styled.ScrollView`
 	flex: 1;
 `
 
-export const Class = styled(RectButton)`
+export const Class = styled.TouchableOpacity`
 	flex-direction: row;
 	margin: 20px 20px 0;
 	padding: 0 5px;
@@ -46,7 +45,7 @@ export const Time = styled.Text`
 
 export const ClassStudents = styled.View`
 	flex: 1;
-	background-color: ${colors.white};
+	background-color: ${colors.shape};
 	border-radius: 8px;
 	padding: 25px 18px 5px;
 	flex-direction: row;

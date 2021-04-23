@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react'
-import { ActivityIndicator } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import React, { useMemo, useState } from 'react'
 import { ScrollView } from 'react-native-gesture-handler'
 import FeatherIcon from 'react-native-vector-icons/Feather'
-import Prismic from '@prismicio/client'
-import { request } from 'graphql-request'
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5'
 
 import { RegisterStudentModal } from '../../components/RegisterStudentModal'
-import { getPrismicClient } from '../../services/prismic'
+import { Load } from '../../components/Load'
+
+import { useStudents } from '../../contexts/students'
 
 import { colors } from '../../styles/colors'
 
@@ -18,84 +17,43 @@ import {
 	StudentItem,
 	StudentInfo,
 	StudentName,
+	StudentPhoneContainer,
 	StudentPhone,
 	StudentClassDays,
 	DayOfWeek,
 	RegisterStudentButton,
 } from './styles'
-import { getGraphCMSClient } from '../../services/graphcms'
-
-interface StudentSchedules {
-	id: string
-	dayOfWeek: {
-		dayWeek: string
-	}
-}
-
-interface Student {
-	id: string
-	name: string
-	phone: string
-	schedules: StudentSchedules[]
-}
 
 export function Students() {
-	const [students, setStudents] = useState<Student[]>([])
-	const [loading, setLoading] = useState(true)
 	const [isModalVisible, setIsModalVisible] = useState(false)
+	const [isParsing, setIsParsing] = useState(true)
+	const { isLoading, students } = useStudents()
 
-	useEffect(() => {
-		async function fetchStudents() {
-			try {
-				const graphcms = getGraphCMSClient()
+	const studentsParsed = useMemo(() => {
+		return students.map((student, index) => {
+			if (index === students.length - 1) {
+				setIsParsing(false)
+			}
 
-				const response = await graphcms.request(
-					`
-				{
-					students {
-						id
-						name
-						phone
-						schedules {
-							id
-							dayOfWeek {
-								dayWeek
-							}
+			return {
+				...student,
+				name: student.name.length > 25 ? `${student.name.substring(0, 25)}...` : student.name,
+				schedules: student.schedules.map((schedule) => {
+					return {
+						...schedule,
+						dayOfWeek: {
+							...schedule.dayOfWeek,
+							dayWeek: schedule.dayOfWeek.dayWeek.split('-')[0]
 						}
 					}
-				}
-				  
-				`
-				)
-				const studentsParsed = response.students.map((student: any) => {
-					return {
-						...student,
-						name: student.name.length > 25 ? `${student.name.substring(0, 25)}...` : student.name,
-						schedules: student.schedules.map((schedule: any) => {
-							return {
-								...schedule,
-								dayOfWeek: {
-									dayWeek: schedule.dayOfWeek.dayWeek.split('-')[0]
-								}
-							}
-						})
-					}
 				})
-
-				setStudents(studentsParsed)
-			} finally {
-				setLoading(false)
 			}
-		}
+		})
+	}, [students])
 
-		fetchStudents()
-	}, [])
-
-	if (loading) {
+	if (isLoading || isParsing) {
 		return (
-			<SafeAreaView style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-				<ActivityIndicator size={40} color={colors.blue} />
-			</SafeAreaView>
+			<Load />
 		)
 	}
 
@@ -108,18 +66,21 @@ export function Students() {
 
 			<ScrollView showsVerticalScrollIndicator={false}>
 				<InputContainer>
-					<FeatherIcon name="search" color={colors.gray300} size={20} />
+					<FeatherIcon name="search" color={colors.gray600} size={20} />
 					<Input
 						placeholder="Procurar aluno..."
-						placeholderTextColor={colors.gray300}
+						placeholderTextColor={colors.gray600}
 					/>
 				</InputContainer>
-				{students.map(student => {
+				{studentsParsed.map(student => {
 					return (
 						<StudentItem key={student.id}>
 							<StudentInfo>
 								<StudentName>{student.name}</StudentName>
-								<StudentPhone>{student.phone}</StudentPhone>
+								<StudentPhoneContainer>
+									<FontAwesomeIcon name="whatsapp" size={20} color={colors.greenWhatsapp} />
+									<StudentPhone>{student.phone}</StudentPhone>
+								</StudentPhoneContainer>
 							</StudentInfo>
 							<StudentClassDays>
 								{student.schedules && student.schedules.map(schedule => {

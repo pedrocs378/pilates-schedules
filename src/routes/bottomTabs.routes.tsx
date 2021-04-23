@@ -22,8 +22,7 @@ export function BottomTabsRoutes() {
 					fontFamily: fonts.complement
 				},
 				style: {
-					height: 80,
-					paddingVertical: 20
+					height: 70,
 				}
 			}}
 		>

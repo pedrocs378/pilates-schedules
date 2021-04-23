@@ -51,7 +51,7 @@ const initialSchedules: ScheduleProps[] = [
 	{
 		id: initialScheduleId,
 		dayOfWeek: '',
-		time: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours() - 3, 0)
+		time: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours(), 0)
 	}
 ]
 
@@ -90,7 +90,7 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 		setSchedules([...schedules, {
 			id: Math.random(),
 			dayOfWeek: '',
-			time: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours() - 3, 0)
+			time: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours(), 0)
 		}])
 	}
 

@@ -9,10 +9,11 @@ export const Container = styled(SafeAreaView)`
 	flex: 1;
 	padding: 28px;
 	position: relative;
+	background-color: ${colors.white};
 `
 
 export const InputContainer = styled.View`
-	background-color: ${colors.white};
+	background-color: ${colors.shape};
 	height: 40px;
 	border-radius: 40px;
 	flex-direction: row;
@@ -36,7 +37,7 @@ export const StudentItem = styled.View`
 
 export const StudentInfo = styled.View`
 	flex: 8;
-	background-color: ${colors.white};
+	background-color: ${colors.shape};
 	justify-content: center;
 	padding: 20px 0;
 	padding-left: 15px;
@@ -49,16 +50,23 @@ export const StudentName = styled.Text`
 	font-size: 16px;
 `
 
+export const StudentPhoneContainer = styled.View`
+	flex-direction: row;
+	align-items: center;
+`
+
 export const StudentPhone = styled.Text`
 	font-family: ${fonts.text};
 	font-size: 14px;
-	color: ${colors.gray400};
+	line-height: 20px;
+	margin-left: 5px;
+	color: ${colors.greenWhatsapp};
 `
 
 export const StudentClassDays = styled.View`
 	flex: 2;
 	margin-left: 5px;
-	background-color: ${colors.white};
+	background-color: ${colors.shape};
 	border-top-right-radius: 8px;
 	border-bottom-right-radius: 8px;
 	padding: 2px 0;

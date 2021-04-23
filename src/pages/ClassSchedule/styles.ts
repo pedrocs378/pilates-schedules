@@ -10,6 +10,7 @@ interface StudentProps {
 
 export const Container = styled(SafeAreaView)`
 	flex: 1;
+	background-color: ${colors.white};
 `
 
 export const Header = styled.View`
@@ -35,7 +36,7 @@ export const Content = styled.View`
 `
 
 export const ClassStudentsCard = styled.View`
-	background-color: ${colors.white};
+	background-color: ${colors.shape};
 	width: 100%;
 	padding: 10px 25px 0;
 	border-radius: 8px;
