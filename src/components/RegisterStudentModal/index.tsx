@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react'
 import { Keyboard, Modal, ToastAndroid, TouchableWithoutFeedback } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
-import { format } from 'date-fns'
+import { format, setWeek } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
 
 import { Button } from '../Button'
@@ -9,6 +9,8 @@ import { InputTextLabel } from '../InputTextLabel'
 import { InputSelectLabel } from '../InputSelectLabel'
 import { InputTextLabelMasked } from '../InputTextLabel/InputTextLabelMasked'
 import { InputButtonLabel } from '../InputButtonLabel'
+
+import { useStudents } from '../../contexts/students'
 
 import { colors } from '../../styles/colors'
 
@@ -27,11 +29,13 @@ import {
 	DeleteScheduleButtonText,
 	ButtonsContainer,
 } from './styles'
-import { useStudents } from '../../contexts/students'
 
 interface ScheduleProps {
 	id: number
-	dayOfWeek: string
+	dayOfWeek: {
+		numberWeek: number
+		dayWeek: string
+	}
 	time: Date
 }
 
@@ -42,6 +46,17 @@ interface ShowScheduleCalendar {
 interface RegisterStudentModalProps {
 	isVisible: boolean
 	onClose: () => void
+	onSubmit: () => void
+}
+
+const daysOfWeek = {
+	[-1]: '',
+	[1]: 'Segunda-feira',
+	[2]: 'Terça-feira',
+	[3]: 'Quarta-feira',
+	[4]: 'Quinta-feira',
+} as {
+	[key: number]: string
 }
 
 const initialScheduleId = Math.random()
@@ -49,7 +64,10 @@ const initialScheduleId = Math.random()
 const initialSchedules: ScheduleProps[] = [
 	{
 		id: initialScheduleId,
-		dayOfWeek: '',
+		dayOfWeek: {
+			numberWeek: -1,
+			dayWeek: ''
+		},
 		time: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours(), 0)
 	}
 ]
@@ -58,7 +76,7 @@ const initialScheduleCalendar = {
 	[initialScheduleId]: false
 }
 
-export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModalProps) {
+export function RegisterStudentModal({ isVisible, onClose, onSubmit }: RegisterStudentModalProps) {
 	const [name, setName] = useState('')
 	const [phone, setPhone] = useState('')
 	const [schedules, setSchedules] = useState<ScheduleProps[]>(initialSchedules)
@@ -70,10 +88,12 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 		try {
 			await publishStudent({
 				name,
-				phone
+				phone,
+				schedules
 			})
 
-			ToastAndroid.show('Cadastro realizado com sucesso', ToastAndroid.LONG)
+			ToastAndroid.show('Aluno cadastrado realizado com sucesso', ToastAndroid.LONG)
+			onSubmit()
 			closeModal()
 		} catch (err) {
 			ToastAndroid.show('Erro ao cadastrar aluno', ToastAndroid.LONG)
@@ -90,7 +110,10 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 	function handleInsertNewSchedule() {
 		setSchedules([...schedules, {
 			id: Math.random(),
-			dayOfWeek: '',
+			dayOfWeek: {
+				numberWeek: -1,
+				dayWeek: ''
+			},
 			time: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours(), 0)
 		}])
 	}
@@ -139,13 +162,15 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 		}
 	}, [schedules])
 
-	const handleChangeDayOfWeek = useCallback((id: number, value: string) => {
-		console.log(value)
+	const handleChangeDayOfWeek = useCallback((id: number, value: number) => {
 		const schedulesEdited = schedules.map(schedule => {
 			if (schedule.id === id) {
 				return {
 					...schedule,
-					dayOfWeek: value
+					dayOfWeek: {
+						numberWeek: value,
+						dayWeek: daysOfWeek[value]
+					}
 				}
 			}
 
@@ -195,8 +220,8 @@ export function RegisterStudentModal({ isVisible, onClose }: RegisterStudentModa
 										<InputSelectLabel
 											style={{ width: '70%' }}
 											labelText="Dia da semana"
-											onValueChange={(value) => handleChangeDayOfWeek(schedule.id, value as string)}
-											selectedValue={schedule.dayOfWeek}
+											onValueChange={(value) => handleChangeDayOfWeek(schedule.id, Number(value))}
+											selectedValue={schedule.dayOfWeek.numberWeek}
 										/>
 										<InputButtonLabel
 											style={{ width: '27%', marginLeft: 'auto' }}

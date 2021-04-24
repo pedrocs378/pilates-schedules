@@ -51,6 +51,12 @@ export function Students() {
 		setStudentsToBeShow(response.students)
 	}
 
+	async function handleReloadStudents() {
+		const newStudents = await fetchStudents()
+
+		setStudentsToBeShow(newStudents)
+	}
+
 	const handleRemoveStudent = useCallback((student: Student) => {
 		Alert.alert('Remover aluno', `Deseja mesmo remover o(a) aluno(a) ${student.name}?`, [
 			{
@@ -107,6 +113,7 @@ export function Students() {
 			<RegisterStudentModal
 				isVisible={isModalVisible}
 				onClose={() => setIsModalVisible(false)}
+				onSubmit={handleReloadStudents}
 			/>
 
 			<ScrollView showsVerticalScrollIndicator={false}>

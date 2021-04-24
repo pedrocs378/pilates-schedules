@@ -25,9 +25,9 @@ export function InputSelectLabel({ labelText, style = {}, ...rest }: InputSelect
 				>
 					<Picker.Item label="Selecione o dia" value={-1} color={colors.gray400} />
 					<Picker.Item label="Segunda-feira" value={1} color={colors.black} />
-					<Picker.Item label="Terça-feira" value={1} color={colors.black} />
-					<Picker.Item label="Quarta-feira" value={1} color={colors.black} />
-					<Picker.Item label="Quinta-feira" value={1} color={colors.black} />
+					<Picker.Item label="Terça-feira" value={2} color={colors.black} />
+					<Picker.Item label="Quarta-feira" value={3} color={colors.black} />
+					<Picker.Item label="Quinta-feira" value={4} color={colors.black} />
 				</Picker>
 			</PickerWrapper>
 		</Container>

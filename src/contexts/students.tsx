@@ -18,9 +18,17 @@ export interface Student {
 	schedules: StudentSchedules[]
 }
 
-type PublicStudentProps = {
+type PublishStudentProps = {
 	name: string
 	phone?: string
+	schedules: {
+		id: number
+		dayOfWeek: {
+			numberWeek: number
+			dayWeek: string
+		}
+		time: Date
+	}[]
 }
 
 interface StudentContextData {
@@ -28,7 +36,7 @@ interface StudentContextData {
 	isLoading: boolean
 	students: Student[]
 	fetchStudents: () => Promise<Student[]>
-	publishStudent: (student: PublicStudentProps) => Promise<void>
+	publishStudent: (student: PublishStudentProps) => Promise<void>
 	deleteStudent: (id: string) => Promise<void>
 }
 
@@ -69,10 +77,7 @@ export function StudentProvider({ children }: StudentProvider) {
 					schedules {
 						id
 						time
-						dayOfWeek {
-							dayWeek
-							numberWeek
-						}
+						dayOfWeek
 					}
 				}
 			}
@@ -88,23 +93,51 @@ export function StudentProvider({ children }: StudentProvider) {
 		}
 	}
 
-	async function publishStudent({ name, phone }: PublicStudentProps) {
+	async function publishStudent({ name, phone, schedules }: PublishStudentProps) {
 		const graphcms = getGraphCMSClient()
 
+		const newSchedules = schedules.map(schedule => {
+			return {
+				time: schedule.time,
+				dayOfWeek: schedule.dayOfWeek
+			}
+		})
+
 		const { createStudent } = await graphcms.request(
-			`mutation {
-				createStudent(data: { name: "${name}", phone: "${phone}" }) {
+			`mutation createNewStudent($schedules: [ScheduleCreateInput!]){
+				createStudent(data: { name: "${name}", phone: "${phone}", schedules: { create: $schedules } }) {
 					id
 					name
 					phone
+					schedules {
+						id
+						time
+						dayOfWeek
+					}
 				}
-			}`
+			}`, {
+			schedules: newSchedules
+		}
 		)
+
+		console.log(createStudent)
 
 		await graphcms.request(
 			`mutation {
 				publishStudent(where: { id: "${createStudent.id}" }, to: PUBLISHED) {
 					id
+				}
+			}`
+		);
+
+		await graphcms.request(
+			`mutation {
+				publishManySchedulesConnection(where: { student: { id: "${createStudent.id}" } }, to: PUBLISHED) {
+					edges {
+						node {
+							id
+						}
+					}
 				}
 			}`
 		);
