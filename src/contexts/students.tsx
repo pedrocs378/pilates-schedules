@@ -156,7 +156,7 @@ export function StudentProvider({ children }: StudentProvider) {
 
 		await graphcms.request(
 			`mutation {
-				publishStudent(where: { id: "${deleteStudent.id}" }, to: PUBLISHED) {
+				unpublishStudent(where: { id: "${deleteStudent.id}" }, from: PUBLISHED) {
 					id
 				}
 			}`
