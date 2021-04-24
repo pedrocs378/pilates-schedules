@@ -85,7 +85,7 @@ export function StudentProvider({ children }: StudentProvider) {
 		const { createStudent } = await graphcms.request(
 			`mutation {
 				createStudent(data: { name: "${name}", phone: "${phone}" }) {
-					  id
+					id
 					name
 					phone
 				}

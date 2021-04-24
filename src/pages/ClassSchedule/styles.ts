@@ -8,6 +8,10 @@ interface StudentProps {
 	isLast?: boolean
 }
 
+interface AbsenceControlProps {
+	isDisabled: boolean
+}
+
 export const Container = styled(SafeAreaView)`
 	flex: 1;
 	background-color: ${colors.white};
@@ -64,9 +68,11 @@ export const StudentAbsenceControlContainer = styled.View`
 	margin-top: 6px;
 `
 
-export const AbsenceControl = styled.TouchableOpacity`
+export const AbsenceControl = styled.TouchableOpacity<AbsenceControlProps>`
 	flex-direction: row;
 	align-items: center;
+	opacity: ${({ isDisabled }) => isDisabled ? 0.5 : 1};
+	
 `
 
 export const AbsenceControlText = styled.Text`

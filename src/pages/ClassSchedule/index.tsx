@@ -1,12 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { TouchableNativeFeedback } from 'react-native'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { ToastAndroid, TouchableNativeFeedback } from 'react-native'
 import FeatherIcon from 'react-native-vector-icons/Feather'
 import CheckBox from '@react-native-community/checkbox'
 import { useNavigation, useRoute } from '@react-navigation/core'
 import { format } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
 
-import { getGraphCMSClient } from '../../services/graphcms'
+import { Load } from '../../components/Load'
+
+import { useClasses, StudentInfoProps } from '../../contexts/classes'
 import { Student as StudentProps } from '../../contexts/students'
 
 import { colors } from '../../styles/colors'
@@ -25,25 +27,12 @@ import {
 	RescheduleButton,
 	RescheduleButtonText,
 } from './styles'
-import { Load } from '../../components/Load'
 
-interface ClassStudent {
+interface ClassStudentProps {
 	id: string
 	name: string
 	hasMissed: boolean
 	willMiss: boolean
-}
-
-interface GraphCMSResponse {
-	classes: {
-		classDate: string
-		id: string
-		students: {
-			hasMissed: boolean
-			willMiss: boolean
-			studentId: string
-		}[]
-	}[]
 }
 
 interface RouteParams {
@@ -52,74 +41,148 @@ interface RouteParams {
 }
 
 export function ClassSchedule() {
+	const { getClassByDate, publishClass, updateClass } = useClasses()
+
+	const [isSubscription, setIsSubscription] = useState(true)
 	const [isLoading, setIsLoading] = useState(true)
-	const [classStudents, setClassStudents] = useState<ClassStudent[]>([])
+	const [classStudents, setClassStudents] = useState<ClassStudentProps[]>([])
+	const [classId, setClassId] = useState('')
 
 	const navigation = useNavigation()
 	const route = useRoute()
 	const { students, date: classDate } = route.params as RouteParams
 
-	function handleHasMissed() {
+	async function fetchClass() {
+		try {
+			const classData = await getClassByDate(classDate)
 
+			const classStudentsResponse = classData ?
+				classData.students.map(({ studentId, hasMissed, willMiss }) => {
+					const student = students.find(data => data.id === studentId)
+
+					return {
+						id: studentId,
+						name: student?.name ?? '',
+						hasMissed,
+						willMiss
+					}
+
+				}) :
+				students.map(student => {
+					return {
+						id: student.id,
+						name: student.name,
+						hasMissed: false,
+						willMiss: false
+					}
+				})
+
+			setClassId(classData ? classData.id : '')
+			setClassStudents(classStudentsResponse)
+		} finally {
+			setIsLoading(false)
+		}
 	}
 
-	function handleWillMiss() {
+	const handleHasMissed = useCallback(async (student: ClassStudentProps) => {
+		if (student.willMiss) {
+			return
+		}
 
-	}
+		const classData = await getClassByDate(classDate)
+
+		if (!classData) {
+			try {
+				await publishClass({
+					date: classDate,
+					students: classStudents.map(data => ({ studentId: data.id, hasMissed: data.hasMissed, willMiss: data.willMiss })),
+					studentToUpdate: {
+						studentId: student.id,
+						willMiss: student.willMiss,
+						hasMissed: !student.hasMissed
+					}
+				})
+
+				ToastAndroid.show('Gravado com sucesso', ToastAndroid.LONG)
+			} catch (err) {
+				console.error(err)
+			}
+		} else {
+			try {
+				await updateClass({
+					classId,
+					students: classStudents.map(data => ({ studentId: data.id, hasMissed: data.hasMissed, willMiss: data.willMiss })),
+					studentToUpdate: {
+						studentId: student.id,
+						willMiss: student.willMiss,
+						hasMissed: !student.hasMissed
+					}
+				})
+
+				ToastAndroid.show('Gravado com sucesso', ToastAndroid.LONG)
+			} catch (err) {
+				console.error(err)
+			}
+		}
+
+		await fetchClass()
+	}, [classDate, classStudents, fetchClass])
+
+	const handleWillMiss = useCallback(async (student: ClassStudentProps) => {
+		if (student.hasMissed) {
+			return
+		}
+
+		const classData = await getClassByDate(classDate)
+
+		if (!classData) {
+			try {
+				await publishClass({
+					date: classDate,
+					students: classStudents.map(data => ({ studentId: data.id, hasMissed: data.hasMissed, willMiss: data.willMiss })),
+					studentToUpdate: {
+						studentId: student.id,
+						willMiss: !student.willMiss,
+						hasMissed: student.hasMissed
+					}
+				})
+
+				ToastAndroid.show('Gravado com sucesso', ToastAndroid.LONG)
+			} catch (err) {
+				console.error(err)
+			}
+		} else {
+			try {
+				await updateClass({
+					classId,
+					students: classStudents.map(data => ({ studentId: data.id, hasMissed: data.hasMissed, willMiss: data.willMiss })),
+					studentToUpdate: {
+						studentId: student.id,
+						willMiss: !student.willMiss,
+						hasMissed: student.hasMissed
+					}
+				})
+
+				ToastAndroid.show('Gravado com sucesso', ToastAndroid.LONG)
+			} catch (err) {
+				console.error(err)
+			}
+		}
+
+		await fetchClass()
+	}, [classDate, classStudents, fetchClass])
 
 	const title = useMemo(() => {
 		return format(new Date(classDate), "dd/MM/yyyy '-' HH:mm", { locale: ptBR })
 	}, [classDate])
 
 	useEffect(() => {
-		async function fetchClasses() {
-			try {
-				const graphcms = getGraphCMSClient()
-
-				const response = await graphcms.request<GraphCMSResponse>(
-					`
-				{
-					classes(where: { classDate: "${new Date(classDate).toISOString()}" }) {
-						id
-						classDate
-						students
-					}
-				}
-					
-				`
-				)
-
-				const [classData] = response.classes
-
-				const classStudentsResponse = classData ?
-					classData.students.map(({ studentId, hasMissed, willMiss }) => {
-						const student = students.find(data => data.id === studentId)
-
-						return {
-							id: studentId,
-							name: student?.name ?? '',
-							hasMissed,
-							willMiss
-						}
-
-					}) :
-					students.map(student => {
-						return {
-							id: student.id,
-							name: student.name,
-							hasMissed: false,
-							willMiss: false
-						}
-					})
-
-				setClassStudents(classStudentsResponse)
-			} finally {
-				setIsLoading(false)
-			}
+		if (isSubscription) {
+			fetchClass()
 		}
 
-		fetchClasses()
-	}, [classDate, students])
+		return () => setIsSubscription(false)
+	}, [classDate, students, fetchClass, isSubscription])
 
 	if (isLoading) {
 		return (
@@ -142,10 +205,11 @@ export function ClassSchedule() {
 							<StudentItem key={student.id} isLast={index === students.length - 1}>
 								<StudentName>{student.name}</StudentName>
 								<StudentAbsenceControlContainer>
-									<AbsenceControl onPress={handleHasMissed}>
+									<AbsenceControl isDisabled={student.willMiss} onPress={() => handleHasMissed(student)}>
 										<CheckBox
+											disabled={student.willMiss ? true : false}
 											value={student.willMiss ? false : student.hasMissed}
-											onValueChange={handleHasMissed}
+											onValueChange={() => handleHasMissed(student)}
 											tintColors={{
 												true: colors.blue,
 												false: colors.blue
@@ -153,10 +217,11 @@ export function ClassSchedule() {
 										/>
 										<AbsenceControlText>Faltou</AbsenceControlText>
 									</AbsenceControl>
-									<AbsenceControl onPress={handleWillMiss}>
+									<AbsenceControl isDisabled={student.hasMissed} onPress={() => handleWillMiss(student)}>
 										<CheckBox
+											disabled={student.hasMissed ? true : false}
 											value={student.hasMissed ? false : student.willMiss}
-											onValueChange={handleWillMiss}
+											onValueChange={() => handleWillMiss(student)}
 											tintColors={{
 												true: colors.blue,
 												false: colors.blue

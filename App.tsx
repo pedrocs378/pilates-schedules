@@ -5,6 +5,7 @@ import { enableScreens } from 'react-native-screens'
 import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold } from '@expo-google-fonts/poppins'
 
 import { StudentProvider } from './src/contexts/students';
+import { ClassesProvider } from './src/contexts/classes';
 
 import { Routes } from './src/routes';
 
@@ -23,7 +24,9 @@ export default function App() {
 
   return (
     <StudentProvider>
-      <Routes />
+      <ClassesProvider>
+        <Routes />
+      </ClassesProvider>
     </StudentProvider>
   );
 }
