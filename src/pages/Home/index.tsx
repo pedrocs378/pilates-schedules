@@ -32,7 +32,8 @@ interface StudentProps {
 }
 
 interface ClassStudent {
-	time: string
+	timeParsed: string
+	classDate: Date
 	students: StudentProps[]
 }
 
@@ -51,9 +52,33 @@ export function Home() {
 		setClassDate(currentDate)
 	}
 
-	const handleGoToClassSchedule = useCallback(() => {
-		navigation.navigate('ClassSchedule')
-	}, [])
+	const handleGoToClassSchedule = useCallback((students: StudentProps[], date: Date) => {
+		navigation.navigate('ClassSchedule', { students, date: date.toString() })
+	}, [navigation.navigate])
+
+	const classStudentsParsed = useMemo(() => {
+		return classStudents.map(classData => {
+			return {
+				...classData,
+				students: classData.students.map(student => {
+					return {
+						...student,
+						name: student.name.length > 12 ? `${student.name.substring(0, 12)}...` : student.name
+					}
+				})
+			}
+		})
+	}, [classStudents])
+
+	const title = useMemo(() => {
+		if (isToday(classDate)) {
+			return 'Aulas - Hoje'
+		}
+
+		return format(classDate, "'Aulas -' dd/MM/yyyy", {
+			locale: ptBR
+		})
+	}, [classDate])
 
 	useEffect(() => {
 		const studentsOfDay = students.filter(student => student.schedules.some(schedule => schedule.dayOfWeek.numberWeek === classDate.getDay()))
@@ -76,29 +101,15 @@ export function Home() {
 			const studentsAtSametime = studentsOfDay.filter(student => student.schedules.some(studentSchedule => new Date(studentSchedule.time).getHours() === new Date(schedule).getHours()))
 
 			return {
-				time: format(new Date(schedule), 'HH:mm', { locale: ptBR }),
-				students: studentsAtSametime.map(student => {
-					return {
-						...student,
-						name: student.name.length > 12 ? `${student.name.substring(0, 12)}...` : student.name
-					}
-				})
+				timeParsed: format(new Date(schedule), 'HH:mm', { locale: ptBR }),
+				classDate: new Date(new Date(classDate).getFullYear(), new Date(classDate).getMonth(), new Date(classDate).getDate(), new Date(schedule).getHours(), new Date(schedule).getMinutes()),
+				students: studentsAtSametime
 			}
 		})
 
 		setClassStudents(classes)
 
 	}, [classDate, students])
-
-	const title = useMemo(() => {
-		if (isToday(classDate)) {
-			return 'Aulas - Hoje'
-		}
-
-		return format(classDate, "'Aulas -' dd/MM/yyyy", {
-			locale: ptBR
-		})
-	}, [classDate])
 
 	if (isLoading) {
 		return (
@@ -126,21 +137,21 @@ export function Home() {
 					/>
 				)}
 			</Header>
-			{classStudents.length === 0 && (
+			{classStudentsParsed.length === 0 && (
 				<WithoutClassesMessageBox>
 					<WithoutClassesMessageBoxText>Sem aulas agendadas hoje 😄</WithoutClassesMessageBoxText>
 				</WithoutClassesMessageBox>
 			)}
 
-			{classStudents.length > 0 && (
+			{classStudentsParsed.length > 0 && (
 				<FlatList
 					showsHorizontalScrollIndicator={false}
 					contentContainerStyle={{ flex: 1 }}
-					data={classStudents}
-					keyExtractor={(item) => item.time}
-					renderItem={({ item }) => (
-						<Class key={item.time} activeOpacity={0.7} onPress={handleGoToClassSchedule}>
-							<Time>{item.time}</Time>
+					data={classStudentsParsed}
+					keyExtractor={(item) => item.timeParsed}
+					renderItem={({ item, index }) => (
+						<Class key={item.timeParsed} activeOpacity={0.7} onPress={() => handleGoToClassSchedule(classStudents[index].students, item.classDate)}>
+							<Time>{item.timeParsed}</Time>
 							<ClassStudents>
 								{item.students.map(student => (
 									<Student key={student.id}>{student.name}</Student>

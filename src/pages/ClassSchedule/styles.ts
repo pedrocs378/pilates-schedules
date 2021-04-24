@@ -42,7 +42,7 @@ export const ClassStudentsCard = styled.View`
 	border-radius: 8px;
 `
 
-export const Student = styled.View<StudentProps>`
+export const StudentItem = styled.View<StudentProps>`
 	${({ isLast }) => !isLast && css`
 		border-bottom-width: 1px;
 	`}
