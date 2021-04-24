@@ -25,6 +25,7 @@ import {
 	RescheduleButton,
 	RescheduleButtonText,
 } from './styles'
+import { Load } from '../../components/Load'
 
 interface ClassStudent {
 	id: string
@@ -51,6 +52,7 @@ interface RouteParams {
 }
 
 export function ClassSchedule() {
+	const [isLoading, setIsLoading] = useState(true)
 	const [classStudents, setClassStudents] = useState<ClassStudent[]>([])
 
 	const navigation = useNavigation()
@@ -71,49 +73,59 @@ export function ClassSchedule() {
 
 	useEffect(() => {
 		async function fetchClasses() {
-			const graphcms = getGraphCMSClient()
+			try {
+				const graphcms = getGraphCMSClient()
 
-			const response = await graphcms.request<GraphCMSResponse>(
-				`
-			{
-				classes(where: { classDate: "${new Date(classDate).toISOString()}" }) {
-					id
-					classDate
-					students
+				const response = await graphcms.request<GraphCMSResponse>(
+					`
+				{
+					classes(where: { classDate: "${new Date(classDate).toISOString()}" }) {
+						id
+						classDate
+						students
+					}
 				}
+					
+				`
+				)
+
+				const [classData] = response.classes
+
+				const classStudentsResponse = classData ?
+					classData.students.map(({ studentId, hasMissed, willMiss }) => {
+						const student = students.find(data => data.id === studentId)
+
+						return {
+							id: studentId,
+							name: student?.name ?? '',
+							hasMissed,
+							willMiss
+						}
+
+					}) :
+					students.map(student => {
+						return {
+							id: student.id,
+							name: student.name,
+							hasMissed: false,
+							willMiss: false
+						}
+					})
+
+				setClassStudents(classStudentsResponse)
+			} finally {
+				setIsLoading(false)
 			}
-				
-			`
-			)
-
-			const [classData] = response.classes
-
-			const classStudentsResponse = classData ?
-				classData.students.map(({ studentId, hasMissed, willMiss }) => {
-					const student = students.find(data => data.id === studentId)
-
-					return {
-						id: studentId,
-						name: student?.name ?? '',
-						hasMissed,
-						willMiss
-					}
-
-				}) :
-				students.map(student => {
-					return {
-						id: student.id,
-						name: student.name,
-						hasMissed: false,
-						willMiss: false
-					}
-				})
-
-			setClassStudents(classStudentsResponse)
 		}
 
 		fetchClasses()
 	}, [classDate, students])
+
+	if (isLoading) {
+		return (
+			<Load />
+		)
+	}
 
 	return (
 		<Container>
