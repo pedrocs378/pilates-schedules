@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from 'react'
 import { ScrollView } from 'react-native-gesture-handler'
 import FeatherIcon from 'react-native-vector-icons/Feather'
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5'
 
 import { RegisterStudentModal } from '../../components/RegisterStudentModal'
 import { Load } from '../../components/Load'
+import { StudentCard } from '../../components/StudentCard'
 
 import { getGraphCMSClient } from '../../services/graphcms'
 import { useStudents, Student } from '../../contexts/students'
@@ -13,15 +13,8 @@ import { colors } from '../../styles/colors'
 
 import {
 	Container,
-	InputContainer,
-	Input,
-	StudentItem,
-	StudentInfo,
-	StudentName,
-	StudentPhoneContainer,
-	StudentPhone,
-	StudentClassDays,
-	DayOfWeek,
+	SearchContainer,
+	InputSearch,
 	RegisterStudentButton,
 } from './styles'
 
@@ -93,34 +86,20 @@ export function Students() {
 			/>
 
 			<ScrollView showsVerticalScrollIndicator={false}>
-				<InputContainer>
+				<SearchContainer>
 					<FeatherIcon name="search" color={colors.gray600} size={20} />
-					<Input
+					<InputSearch
 						placeholder="Procurar aluno..."
+						selectTextOnFocus
+						autoCorrect
+						autoCompleteType="name"
 						placeholderTextColor={colors.gray600}
 						onChangeText={handleSearchStudent}
 					/>
-				</InputContainer>
+				</SearchContainer>
 				{studentsParsed.map(student => {
 					return (
-						<StudentItem key={student.id}>
-							<StudentInfo>
-								<StudentName>{student.name}</StudentName>
-								<StudentPhoneContainer>
-									<FontAwesomeIcon name="whatsapp" size={20} color={colors.greenWhatsapp} />
-									<StudentPhone>{student.phone}</StudentPhone>
-								</StudentPhoneContainer>
-							</StudentInfo>
-							<StudentClassDays>
-								{student.schedules && student.schedules.map(schedule => {
-									return (
-										<DayOfWeek key={schedule.id}>
-											{schedule.dayOfWeek.dayWeek}
-										</DayOfWeek>
-									)
-								})}
-							</StudentClassDays>
-						</StudentItem>
+						<StudentCard key={student.id} student={student} />
 					)
 				})}
 			</ScrollView>
