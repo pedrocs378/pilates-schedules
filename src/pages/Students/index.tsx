@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
+import { Alert, ToastAndroid } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import FeatherIcon from 'react-native-vector-icons/Feather'
 
@@ -19,7 +20,7 @@ import {
 } from './styles'
 
 export function Students() {
-	const { isLoading, students } = useStudents()
+	const { isLoading, students, fetchStudents, deleteStudent } = useStudents()
 
 	const [studentsToBeShow, setStudentsToBeShow] = useState<Student[]>(students)
 	const [isModalVisible, setIsModalVisible] = useState(false)
@@ -50,6 +51,29 @@ export function Students() {
 		setStudentsToBeShow(response.students)
 	}
 
+	const handleRemoveStudent = useCallback((student: Student) => {
+		Alert.alert('Remover aluno', `Deseja mesmo remover o(a) aluno(a) ${student.name}?`, [
+			{
+				text: 'Não 😎',
+				style: 'cancel'
+			}, {
+				text: 'Sim 😥',
+				onPress: async () => {
+					try {
+						await deleteStudent(student.id)
+
+						const newStudents = await fetchStudents()
+
+						setStudentsToBeShow(newStudents)
+						ToastAndroid.show(`${student.name} agora não é mais seu aluno`, ToastAndroid.LONG)
+					} catch {
+						ToastAndroid.show(`Não foi possivel excluir este aluno.`, ToastAndroid.LONG)
+					}
+				}
+			}
+		])
+	}, [deleteStudent, fetchStudents])
+
 	const studentsParsed = useMemo(() => {
 		return studentsToBeShow.map((student, index) => {
 			if (index === students.length - 1) {
@@ -70,7 +94,7 @@ export function Students() {
 				})
 			}
 		})
-	}, [studentsToBeShow])
+	}, [studentsToBeShow, students])
 
 	if (isLoading || isParsing) {
 		return (
@@ -99,7 +123,7 @@ export function Students() {
 				</SearchContainer>
 				{studentsParsed.map(student => {
 					return (
-						<StudentCard key={student.id} student={student} />
+						<StudentCard key={student.id} student={student} onDelete={() => handleRemoveStudent(student)} />
 					)
 				})}
 			</ScrollView>

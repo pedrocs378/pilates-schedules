@@ -22,9 +22,10 @@ import {
 
 interface StudentCardProps {
 	student: Student
+	onDelete: () => void
 }
 
-export function StudentCard({ student }: StudentCardProps) {
+export function StudentCard({ student, onDelete }: StudentCardProps) {
 
 	return (
 		<Swipeable
@@ -32,7 +33,7 @@ export function StudentCard({ student }: StudentCardProps) {
 			renderRightActions={() => (
 				<Animated.View>
 					<View>
-						<ButtonRemove>
+						<ButtonRemove onPress={onDelete}>
 							<FeatherIcon name="trash" size={28} color={colors.white} />
 						</ButtonRemove>
 					</View>
@@ -44,7 +45,7 @@ export function StudentCard({ student }: StudentCardProps) {
 					<StudentName>{student.name}</StudentName>
 					<StudentPhoneContainer>
 						<FontAwesomeIcon name="whatsapp" size={20} color={colors.greenWhatsapp} />
-						<StudentPhone>{student.phone}</StudentPhone>
+						<StudentPhone>{student.phone || "Não informado"}</StudentPhone>
 					</StudentPhoneContainer>
 				</StudentInfo>
 				<StudentClassDays>

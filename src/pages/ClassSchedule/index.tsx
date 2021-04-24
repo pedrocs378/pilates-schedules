@@ -8,7 +8,7 @@ import ptBR from 'date-fns/locale/pt-BR'
 
 import { Load } from '../../components/Load'
 
-import { useClasses, StudentInfoProps } from '../../contexts/classes'
+import { useClasses } from '../../contexts/classes'
 import { Student as StudentProps } from '../../contexts/students'
 
 import { colors } from '../../styles/colors'
