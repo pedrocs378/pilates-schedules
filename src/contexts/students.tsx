@@ -41,13 +41,13 @@ interface StudentContextData {
 	deleteStudent: (id: string) => Promise<void>
 }
 
-interface StudentProvider {
+interface StudentProviderProps {
 	children: ReactNode
 }
 
 const StudentContext = createContext<StudentContextData>({} as StudentContextData)
 
-export function StudentProvider({ children }: StudentProvider) {
+export function StudentProvider({ children }: StudentProviderProps) {
 	const [students, setStudents] = useState<Student[]>([])
 	const [isSubscription, setIsSubscription] = useState(true)
 	const [isErrored, setIsErrored] = useState(false)
@@ -57,9 +57,7 @@ export function StudentProvider({ children }: StudentProvider) {
 
 	useEffect(() => {
 		if (isSubscription) {
-			fetchStudents().then(data => {
-				setStudents(data)
-			})
+			fetchStudents()
 		}
 
 		return () => setIsSubscription(false)
@@ -88,6 +86,7 @@ export function StudentProvider({ children }: StudentProvider) {
 			`
 			)
 
+			setStudents(response.students)
 			return response.students
 		} catch {
 			setIsErrored(true)

@@ -1,5 +1,4 @@
 import styled from 'styled-components/native'
-import { RectButton } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { colors } from '../../styles/colors'

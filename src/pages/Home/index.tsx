@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { FlatList } from 'react-native'
+import { FlatList, RefreshControl } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5'
@@ -41,10 +41,21 @@ export function Home() {
 	const [classDate, setClassDate] = useState(new Date())
 	const [classStudents, setClassStudents] = useState<ClassStudent[]>([])
 	const [showCalendar, setShowCalendar] = useState(false)
+	const [refresh, setRefresh] = useState(false)
 
-	const { isLoading, students } = useStudents()
+	const { isLoading, students, fetchStudents } = useStudents()
 
 	const navigation = useNavigation()
+
+	async function handleRefresh() {
+		setRefresh(true)
+
+		try {
+			await fetchStudents()
+		} finally {
+			setRefresh(false)
+		}
+	}
 
 	function handleChangeClassDate(_: any, selectedDate: Date | undefined) {
 		setShowCalendar(oldValue => !oldValue)
@@ -119,49 +130,56 @@ export function Home() {
 	}
 
 	return (
-		<Container>
-			<StatusBar style="auto" translucent backgroundColor="transparent" />
+		<RefreshControl
+			refreshing={refresh}
+			onRefresh={handleRefresh}
+			style={{ flex: 1 }}
+		>
+			<Container>
+				<StatusBar style="auto" translucent backgroundColor="transparent" />
 
-			<Header>
-				<Title>{title}</Title>
-				<TouchableWithoutFeedback onPress={() => setShowCalendar(oldValue => !oldValue)}>
-					<FontAwesomeIcon name="calendar-alt" color={colors.white} size={23} />
-				</TouchableWithoutFeedback>
+				<Header>
+					<Title>{title}</Title>
+					<TouchableWithoutFeedback onPress={() => setShowCalendar(oldValue => !oldValue)}>
+						<FontAwesomeIcon name="calendar-alt" color={colors.white} size={23} />
+					</TouchableWithoutFeedback>
 
-				{showCalendar && (
-					<DateTimePicker
-						value={classDate}
-						mode="date"
-						display="default"
-						onChange={handleChangeClassDate}
-						minimumDate={new Date()}
+					{showCalendar && (
+						<DateTimePicker
+							value={classDate}
+							mode="date"
+							display="default"
+							onChange={handleChangeClassDate}
+							minimumDate={new Date()}
+						/>
+					)}
+				</Header>
+				{classStudentsParsed.length === 0 && (
+					<WithoutClassesMessageBox>
+						<WithoutClassesMessageBoxText>Sem aulas agendadas hoje 😄</WithoutClassesMessageBoxText>
+					</WithoutClassesMessageBox>
+				)}
+
+				{classStudentsParsed.length > 0 && (
+					<FlatList
+						showsHorizontalScrollIndicator={false}
+						contentContainerStyle={{ flex: 1 }}
+						data={classStudentsParsed}
+						keyExtractor={(item) => item.timeParsed}
+						renderItem={({ item, index }) => (
+							<Class key={item.timeParsed} activeOpacity={0.7} onPress={() => handleGoToClassSchedule(classStudents[index].students, item.classDate)}>
+								<Time>{item.timeParsed}</Time>
+								<ClassStudents>
+									{item.students.map(student => (
+										<Student key={student.id}>{student.name}</Student>
+									))}
+								</ClassStudents>
+							</Class>
+						)}
 					/>
 				)}
-			</Header>
-			{classStudentsParsed.length === 0 && (
-				<WithoutClassesMessageBox>
-					<WithoutClassesMessageBoxText>Sem aulas agendadas hoje 😄</WithoutClassesMessageBoxText>
-				</WithoutClassesMessageBox>
-			)}
 
-			{classStudentsParsed.length > 0 && (
-				<FlatList
-					showsHorizontalScrollIndicator={false}
-					contentContainerStyle={{ flex: 1 }}
-					data={classStudentsParsed}
-					keyExtractor={(item) => item.timeParsed}
-					renderItem={({ item, index }) => (
-						<Class key={item.timeParsed} activeOpacity={0.7} onPress={() => handleGoToClassSchedule(classStudents[index].students, item.classDate)}>
-							<Time>{item.timeParsed}</Time>
-							<ClassStudents>
-								{item.students.map(student => (
-									<Student key={student.id}>{student.name}</Student>
-								))}
-							</ClassStudents>
-						</Class>
-					)}
-				/>
-			)}
-		</Container>
+			</Container>
+		</RefreshControl>
 	)
 }
