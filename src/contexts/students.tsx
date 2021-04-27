@@ -1,6 +1,7 @@
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react'
 
 import { getGraphCMSClient } from '../services/graphcms'
+import { useClasses } from './classes'
 
 export interface StudentSchedules {
 	id: string
@@ -51,6 +52,8 @@ export function StudentProvider({ children }: StudentProvider) {
 	const [isSubscription, setIsSubscription] = useState(true)
 	const [isErrored, setIsErrored] = useState(false)
 	const [isLoading, setIsLoading] = useState(true)
+
+	const { getClasses, deleteStudentFromClass } = useClasses()
 
 	useEffect(() => {
 		if (isSubscription) {
@@ -120,8 +123,6 @@ export function StudentProvider({ children }: StudentProvider) {
 		}
 		)
 
-		console.log(createStudent)
-
 		await graphcms.request(
 			`mutation {
 				publishStudent(where: { id: "${createStudent.id}" }, to: PUBLISHED) {
@@ -161,6 +162,15 @@ export function StudentProvider({ children }: StudentProvider) {
 				}
 			}`
 		);
+
+		const classes = await getClasses()
+
+		for await (const classData of classes) {
+			deleteStudentFromClass({
+				classId: classData.id,
+				studentId: id
+			})
+		}
 	}
 
 	return (

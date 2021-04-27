@@ -72,7 +72,8 @@ export function Students() {
 
 						setStudentsToBeShow(newStudents)
 						ToastAndroid.show(`${student.name} agora não é mais seu aluno`, ToastAndroid.LONG)
-					} catch {
+					} catch (err) {
+						console.error(err)
 						ToastAndroid.show(`Não foi possivel excluir este aluno.`, ToastAndroid.LONG)
 					}
 				}

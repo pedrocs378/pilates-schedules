@@ -23,10 +23,10 @@ export default function App() {
   }
 
   return (
-    <StudentProvider>
-      <ClassesProvider>
+    <ClassesProvider>
+      <StudentProvider>
         <Routes />
-      </ClassesProvider>
-    </StudentProvider>
+      </StudentProvider>
+    </ClassesProvider>
   );
 }

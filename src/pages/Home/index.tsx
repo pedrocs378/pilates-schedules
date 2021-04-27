@@ -41,6 +41,7 @@ export function Home() {
 	const [classDate, setClassDate] = useState(new Date())
 	const [classStudents, setClassStudents] = useState<ClassStudent[]>([])
 	const [showCalendar, setShowCalendar] = useState(false)
+
 	const { isLoading, students } = useStudents()
 
 	const navigation = useNavigation()

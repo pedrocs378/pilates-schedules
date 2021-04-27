@@ -92,7 +92,7 @@ export function RegisterStudentModal({ isVisible, onClose, onSubmit }: RegisterS
 				schedules
 			})
 
-			ToastAndroid.show('Aluno cadastrado realizado com sucesso', ToastAndroid.LONG)
+			ToastAndroid.show('Aluno cadastrado com sucesso', ToastAndroid.LONG)
 			onSubmit()
 			closeModal()
 		} catch (err) {
