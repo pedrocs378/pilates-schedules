@@ -110,7 +110,7 @@ export function Home() {
 		schedules = schedules.sort((a, b) => new Date(a).getHours() - new Date(b).getHours())
 
 		const classes = schedules.map(schedule => {
-			const studentsAtSametime = studentsOfDay.filter(student => student.schedules.some(studentSchedule => new Date(studentSchedule.time).getHours() === new Date(schedule).getHours()))
+			const studentsAtSametime = studentsOfDay.filter(student => student.schedules.some(studentSchedule => (new Date(studentSchedule.time).getHours() === new Date(schedule).getHours()) && (studentSchedule.dayOfWeek.numberWeek === classDate.getDay())))
 
 			return {
 				timeParsed: format(new Date(schedule), 'HH:mm', { locale: ptBR }),
