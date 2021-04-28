@@ -40,9 +40,7 @@ export function Students() {
 				phone
 				schedules {
 					id
-					dayOfWeek {
-						dayWeek
-					}
+					dayOfWeek
 				}
 			}
 		}

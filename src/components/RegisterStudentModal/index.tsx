@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { Keyboard, Modal, ToastAndroid, TouchableWithoutFeedback } from 'react-native'
+import { ActivityIndicator, Keyboard, Modal, ToastAndroid, TouchableWithoutFeedback } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { format } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
@@ -77,6 +77,7 @@ const initialScheduleCalendar = {
 }
 
 export function RegisterStudentModal({ isVisible, onClose, onSubmit }: RegisterStudentModalProps) {
+	const [isRegistering, setIsRegistering] = useState(false)
 	const [name, setName] = useState('')
 	const [phone, setPhone] = useState('')
 	const [schedules, setSchedules] = useState<ScheduleProps[]>(initialSchedules)
@@ -86,6 +87,22 @@ export function RegisterStudentModal({ isVisible, onClose, onSubmit }: RegisterS
 
 	async function handleSubmit() {
 		try {
+			if (!name.trim()) {
+				ToastAndroid.show('Insira o nome do aluno.', ToastAndroid.LONG)
+				return
+			}
+
+			if (schedules.length === 1 && schedules[0].dayOfWeek.numberWeek === -1) {
+				ToastAndroid.show('Insira no mínimo 1 (um) horário válido', ToastAndroid.LONG)
+				return
+			}
+
+			if (schedules.some(schedule => schedule.dayOfWeek.numberWeek === -1)) {
+				ToastAndroid.show('Selecione um dia válido da semana', ToastAndroid.LONG)
+				return
+			}
+			setIsRegistering(true)
+
 			await publishStudent({
 				name,
 				phone,
@@ -97,6 +114,8 @@ export function RegisterStudentModal({ isVisible, onClose, onSubmit }: RegisterS
 			closeModal()
 		} catch (err) {
 			ToastAndroid.show('Erro ao cadastrar aluno', ToastAndroid.LONG)
+		} finally {
+			setIsRegistering(false)
 		}
 	}
 
@@ -257,10 +276,14 @@ export function RegisterStudentModal({ isVisible, onClose, onSubmit }: RegisterS
 							)
 						})}
 						<ButtonsContainer>
-							<Button color={colors.red} onPress={closeModal} activeOpacity={0.7}>
+							<Button color={colors.red} onPress={closeModal}>
 								Cancelar
 							</Button>
-							<Button color={colors.green} onPress={handleSubmit} activeOpacity={0.7}>
+							<Button
+								icon={() => isRegistering ? <ActivityIndicator size="small" color={colors.white} style={{ marginRight: 10 }} /> : null}
+								color={colors.green}
+								onPress={handleSubmit}
+							>
 								Salvar
 							</Button>
 						</ButtonsContainer>

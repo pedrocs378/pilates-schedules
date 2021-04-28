@@ -84,7 +84,8 @@ const initialScheduleCalendar = {
 export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStudentModalProps) {
 	const [editStudent, setEditStudent] = useState(false)
 	const [name, setName] = useState(data.name)
-	const [phone, setPhone] = useState(data.phone)
+	const [phone, setPhone] = useState(data?.phone || '')
+	const [showCalendar, setShowCalendar] = useState<ShowScheduleCalendar>(initialScheduleCalendar)
 	const [schedules, setSchedules] = useState<ScheduleProps[]>(() => {
 		if (data.schedules) {
 			return data.schedules.map(schedule => {
@@ -97,7 +98,8 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 
 		return []
 	})
-	const [showCalendar, setShowCalendar] = useState<ShowScheduleCalendar>(initialScheduleCalendar)
+
+	console.log(data)
 
 	const { publishStudent } = useStudents()
 
@@ -119,13 +121,13 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 
 	function handleSetEditing() {
 		setName(data.name)
-		setPhone(data.phone)
+		setPhone(data?.phone || '')
 		setEditStudent(true)
 	}
 
 	function handleCancelEditing() {
 		setName(data.name)
-		setPhone(data.phone)
+		setPhone(data?.phone || '')
 		setEditStudent(false)
 	}
 
@@ -248,7 +250,7 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 							keyboardType="phone-pad"
 							placeholder="(18) 9xxxx-xxxx"
 							editable={editStudent}
-							value={editStudent ? phone : data.phone}
+							value={!data.phone ? phone : editStudent ? phone : data.phone}
 							onChangeText={text => setPhone(text)}
 						/>
 						<SectionTitleContainer>
@@ -300,34 +302,33 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 								</Schedule>
 							)
 						})}
-						{data.phone && (
+						{!!data.phone && (
 							<Button
 								icon={() => <FontAwesomeIcon name="whatsapp" color={colors.white} size={23} style={{ marginRight: 10 }} />}
 								color={colors.greenWhatsapp}
 								onPress={handleSendWhatsappMessage}
-								activeOpacity={0.7}
 							>
 								Enviar mensagem
 							</Button>
 						)}
 						<ButtonsContainer>
 							{editStudent ? (
-								<Button color={colors.red} onPress={handleCancelEditing} activeOpacity={0.7}>
-									Cancelar
+								<Button color={colors.green} onPress={() => { }}>
+									Salvar
 								</Button>
 							) : (
-								<Button color={colors.gray300} onPress={closeModal} activeOpacity={0.7}>
-									Fechar
+								<Button color={colors.yellow} onPress={handleSetEditing}>
+									Editar
 								</Button>
 							)}
 
 							{editStudent ? (
-								<Button color={colors.green} onPress={() => { }} activeOpacity={0.7}>
-									Salvar
+								<Button color={colors.red} onPress={handleCancelEditing}>
+									Cancelar
 								</Button>
 							) : (
-								<Button color={colors.yellow} onPress={handleSetEditing} activeOpacity={0.7}>
-									Editar
+								<Button color={colors.gray300} onPress={closeModal}>
+									Fechar
 								</Button>
 							)}
 						</ButtonsContainer>

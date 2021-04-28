@@ -15,7 +15,7 @@ export interface StudentSchedules {
 export interface Student {
 	id: string
 	name: string
-	phone: string
+	phone?: string
 	schedules: StudentSchedules[]
 }
 

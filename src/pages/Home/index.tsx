@@ -139,7 +139,7 @@ export function Home() {
 				</Header>
 				{classStudents.length === 0 && (
 					<WithoutClassesMessageBox>
-						<WithoutClassesMessageBoxText>Sem aulas agendadas hoje 😄</WithoutClassesMessageBoxText>
+						<WithoutClassesMessageBoxText>Sem aulas agendadas para esta data 😄</WithoutClassesMessageBoxText>
 					</WithoutClassesMessageBox>
 				)}
 
@@ -149,11 +149,11 @@ export function Home() {
 						contentContainerStyle={{ flex: 1 }}
 						data={classStudents}
 						keyExtractor={(item) => item.timeParsed}
-						renderItem={({ item, index }) => (
+						renderItem={({ item }) => (
 							<ClassCard
 								key={item.timeParsed}
 								classData={item}
-								onPress={() => handleGoToClassSchedule(classStudents[index].students, item.classDate)}
+								onPress={() => handleGoToClassSchedule(item.students, item.classDate)}
 							/>
 
 						)}
