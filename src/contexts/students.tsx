@@ -23,7 +23,7 @@ type PublishStudentProps = {
 	name: string
 	phone?: string
 	schedules: {
-		id: number
+		id: string
 		dayOfWeek: {
 			numberWeek: number
 			dayWeek: string

@@ -1,9 +1,10 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { Alert, ToastAndroid } from 'react-native'
+import { Alert, ToastAndroid, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import FeatherIcon from 'react-native-vector-icons/Feather'
 
 import { RegisterStudentModal } from '../../components/RegisterStudentModal'
+import { EditStudentModal } from '../../components/EditStudentModal'
 import { Load } from '../../components/Load'
 import { StudentCard } from '../../components/StudentCard'
 
@@ -22,9 +23,10 @@ import {
 export function Students() {
 	const { isLoading, students, fetchStudents, deleteStudent } = useStudents()
 
+	const [studentSelected, setStudentSelected] = useState<Student>({} as Student)
 	const [studentsToBeShow, setStudentsToBeShow] = useState<Student[]>(students)
-	const [isModalVisible, setIsModalVisible] = useState(false)
-	const [isParsing, setIsParsing] = useState(true)
+	const [isRegisterStudentModalVisible, setIsRegisterStudentModalVisible] = useState(false)
+	const [isEditStudentModalVisible, setIsEditStudentModalVisible] = useState(false)
 
 	async function handleSearchStudent(name: string) {
 		const graphcms = getGraphCMSClient()
@@ -81,29 +83,12 @@ export function Students() {
 		])
 	}, [deleteStudent, fetchStudents])
 
-	const studentsParsed = useMemo(() => {
-		return studentsToBeShow.map((student, index) => {
-			if (index === students.length - 1) {
-				setIsParsing(false)
-			}
+	const handleOpenOrCloseEditModal = useCallback((value: boolean, student: Student) => {
+		setStudentSelected(student)
+		setIsEditStudentModalVisible(value)
+	}, [])
 
-			return {
-				...student,
-				name: student.name.length > 25 ? `${student.name.substring(0, 25)}...` : student.name,
-				schedules: student.schedules.map((schedule) => {
-					return {
-						...schedule,
-						dayOfWeek: {
-							...schedule.dayOfWeek,
-							dayWeek: schedule.dayOfWeek.dayWeek.split('-')[0]
-						}
-					}
-				})
-			}
-		})
-	}, [studentsToBeShow, students])
-
-	if (isLoading || isParsing) {
+	if (isLoading) {
 		return (
 			<Load />
 		)
@@ -112,9 +97,15 @@ export function Students() {
 	return (
 		<Container>
 			<RegisterStudentModal
-				isVisible={isModalVisible}
-				onClose={() => setIsModalVisible(false)}
+				isVisible={isRegisterStudentModalVisible}
+				onClose={() => setIsRegisterStudentModalVisible(false)}
 				onSubmit={handleReloadStudents}
+			/>
+
+			<EditStudentModal
+				isVisible={isEditStudentModalVisible}
+				onClose={() => handleOpenOrCloseEditModal(false, {} as Student)}
+				data={studentSelected}
 			/>
 
 			<ScrollView showsVerticalScrollIndicator={false}>
@@ -129,13 +120,19 @@ export function Students() {
 						onChangeText={handleSearchStudent}
 					/>
 				</SearchContainer>
-				{studentsParsed.map(student => {
+				{studentsToBeShow.map(student => {
 					return (
-						<StudentCard key={student.id} student={student} onDelete={() => handleRemoveStudent(student)} />
+						<StudentCard
+							key={student.id}
+							student={student}
+							onDelete={() => handleRemoveStudent(student)}
+							onPress={() => handleOpenOrCloseEditModal(true, student)}
+						/>
 					)
 				})}
 			</ScrollView>
-			<RegisterStudentButton onPress={() => setIsModalVisible(true)}>
+
+			<RegisterStudentButton onPress={() => setIsRegisterStudentModalVisible(true)}>
 				<FeatherIcon name="plus" color={colors.white} size={25} />
 			</RegisterStudentButton>
 		</Container>

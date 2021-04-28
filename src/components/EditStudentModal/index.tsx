@@ -1,8 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { Keyboard, Modal, ToastAndroid, TouchableWithoutFeedback } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5'
+import FeatherIcon from 'react-native-vector-icons/Feather'
 import { format } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
+import * as Linking from 'expo-linking'
 
 import { Button } from '../Button'
 import { InputTextLabel } from '../InputTextLabel'
@@ -10,13 +13,14 @@ import { InputSelectLabel } from '../InputSelectLabel'
 import { InputTextLabelMasked } from '../InputTextLabel/InputTextLabelMasked'
 import { InputButtonLabel } from '../InputButtonLabel'
 
-import { useStudents } from '../../contexts/students'
+import { useStudents, Student } from '../../contexts/students'
 
 import { colors } from '../../styles/colors'
 
 import {
 	Container,
 	ModalItem,
+	CloseButton,
 	SectionTitle,
 	SectionTitleContainer,
 	NewScheduleButton,
@@ -43,10 +47,11 @@ interface ShowScheduleCalendar {
 	[id: string]: boolean
 }
 
-interface RegisterStudentModalProps {
+interface EditStudentModalProps {
 	isVisible: boolean
 	onClose: () => void
-	onSubmit: () => void
+	onSubmit?: () => void
+	data: Student
 }
 
 const daysOfWeek = {
@@ -76,24 +81,31 @@ const initialScheduleCalendar = {
 	[initialScheduleId]: false
 }
 
-export function RegisterStudentModal({ isVisible, onClose, onSubmit }: RegisterStudentModalProps) {
-	const [name, setName] = useState('')
-	const [phone, setPhone] = useState('')
-	const [schedules, setSchedules] = useState<ScheduleProps[]>(initialSchedules)
+export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStudentModalProps) {
+	const [editStudent, setEditStudent] = useState(false)
+	const [name, setName] = useState(data.name)
+	const [phone, setPhone] = useState(data.phone)
+	const [schedules, setSchedules] = useState<ScheduleProps[]>(() => {
+		if (data.schedules) {
+			return data.schedules.map(schedule => {
+				return {
+					...schedule,
+					time: new Date(schedule.time)
+				}
+			})
+		}
+
+		return []
+	})
 	const [showCalendar, setShowCalendar] = useState<ShowScheduleCalendar>(initialScheduleCalendar)
 
 	const { publishStudent } = useStudents()
 
 	async function handleSubmit() {
 		try {
-			await publishStudent({
-				name,
-				phone,
-				schedules
-			})
 
 			ToastAndroid.show('Aluno cadastrado com sucesso', ToastAndroid.LONG)
-			onSubmit()
+			onSubmit && onSubmit()
 			closeModal()
 		} catch (err) {
 			ToastAndroid.show('Erro ao cadastrar aluno', ToastAndroid.LONG)
@@ -105,6 +117,10 @@ export function RegisterStudentModal({ isVisible, onClose, onSubmit }: RegisterS
 		setName('')
 		setPhone('')
 		onClose()
+	}
+
+	function handleCancelEditing() {
+		setEditStudent(false)
 	}
 
 	function handleInsertNewSchedule() {
@@ -120,6 +136,10 @@ export function RegisterStudentModal({ isVisible, onClose, onSubmit }: RegisterS
 
 	function handleChangePhone(text: string) {
 		setPhone(text)
+	}
+
+	function handleSendWhatsappMessage() {
+		Linking.openURL(`whatsapp://send?phone=+55${data.phone}`)
 	}
 
 	const handleRemoveSchedule = useCallback((id: string) => {
@@ -181,13 +201,21 @@ export function RegisterStudentModal({ isVisible, onClose, onSubmit }: RegisterS
 	}, [schedules])
 
 	const schedulesFormated = useMemo(() => {
-		return schedules.map(schedule => {
+		if (!data.schedules) {
+			return []
+		}
+
+		return data.schedules.map(schedule => {
 			return {
 				...schedule,
-				timeFormated: format(schedule.time, 'HH:mm', { locale: ptBR })
+				time: format(new Date(schedule.time), 'HH:mm', { locale: ptBR })
 			}
 		})
-	}, [schedules])
+	}, [data.schedules])
+
+	if (!data.schedules) {
+		return null
+	}
 
 	return (
 		<Modal
@@ -199,28 +227,35 @@ export function RegisterStudentModal({ isVisible, onClose, onSubmit }: RegisterS
 			<Container>
 				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 					<ModalItem showsVerticalScrollIndicator={false}>
-						<SectionTitle style={{ marginBottom: 18 }}>Dados</SectionTitle>
+						<CloseButton onPress={onClose} activeOpacity={0.2}>
+							<FeatherIcon name="x" size={28} color={colors.gray300} />
+						</CloseButton>
+						<SectionTitle style={{ marginBottom: 25 }}>Dados</SectionTitle>
 						<InputTextLabel
 							labelText="Nome"
-							value={name}
-							onChangeText={text => setName(text)}
-							autoCapitalize="words"
 							selectTextOnFocus
+							autoCapitalize="words"
+							editable={editStudent}
+							value={data.name}
+							onChangeText={text => setName(text)}
 						/>
 						<InputTextLabelMasked
-							type="cel-phone"
 							labelText="Celular (Somente números)"
+							type="cel-phone"
 							selectTextOnFocus
 							keyboardType="phone-pad"
 							placeholder="(18) 9xxxx-xxxx"
-							value={phone}
+							editable={editStudent}
+							value={data.phone}
 							onChangeText={handleChangePhone}
 						/>
 						<SectionTitleContainer>
 							<SectionTitle>Horários</SectionTitle>
-							<NewScheduleButton onPress={handleInsertNewSchedule}>
-								<NewScheduleButtonText>+  Novo horário</NewScheduleButtonText>
-							</NewScheduleButton>
+							{editStudent && (
+								<NewScheduleButton onPress={handleInsertNewSchedule}>
+									<NewScheduleButtonText>+  Novo horário</NewScheduleButtonText>
+								</NewScheduleButton>
+							)}
 						</SectionTitleContainer>
 						{schedulesFormated.map(schedule => {
 							return (
@@ -229,44 +264,70 @@ export function RegisterStudentModal({ isVisible, onClose, onSubmit }: RegisterS
 										<InputSelectLabel
 											style={{ width: '70%' }}
 											labelText="Dia da semana"
-											onValueChange={(value) => handleChangeDayOfWeek(schedule.id, Number(value))}
 											selectedValue={schedule.dayOfWeek.numberWeek}
+											enabled={editStudent}
 										/>
 										<InputButtonLabel
 											style={{ width: '27%', marginLeft: 'auto' }}
 											labelText="Hora"
-											value={schedule.timeFormated}
-											onPress={() => handleOpenDateTimePicker(schedule.id)}
+											value={schedule.time}
+											disabled={!editStudent}
+											onPress={() => { }}
 										/>
 
-										{showCalendar[schedule.id] && (
+										{/* {showCalendar[schedule.id] && (
 											<DateTimePicker
 												value={schedule.time}
 												mode="time"
 												display="default"
 												onChange={(_, selectedDate) => handleChangeTime(schedule.id, selectedDate)}
 											/>
-										)}
+										)} */}
 									</InputsContainer>
-									<DeleteScheduleContainer>
-										<Separator />
+									{editStudent && (
+										<DeleteScheduleContainer>
+											<Separator />
 
-										<DeleteScheduleButton onPress={() => handleRemoveSchedule(schedule.id)}>
-											<DeleteScheduleButtonText>Excluir horário</DeleteScheduleButtonText>
-										</DeleteScheduleButton>
+											<DeleteScheduleButton onPress={() => { }}>
+												<DeleteScheduleButtonText>Excluir horário</DeleteScheduleButtonText>
+											</DeleteScheduleButton>
 
-										<Separator />
-									</DeleteScheduleContainer>
+											<Separator />
+										</DeleteScheduleContainer>
+									)}
 								</Schedule>
 							)
 						})}
+						{data.phone && (
+							<Button
+								icon={() => <FontAwesomeIcon name="whatsapp" color={colors.white} size={23} style={{ marginRight: 10 }} />}
+								color={colors.greenWhatsapp}
+								onPress={handleSendWhatsappMessage}
+								activeOpacity={0.7}
+							>
+								Enviar mensagem
+							</Button>
+						)}
 						<ButtonsContainer>
-							<Button color={colors.red} onPress={closeModal} activeOpacity={0.7}>
-								Cancelar
-							</Button>
-							<Button color={colors.green} onPress={handleSubmit} activeOpacity={0.7}>
-								Salvar
-							</Button>
+							{editStudent ? (
+								<Button color={colors.red} onPress={handleCancelEditing} activeOpacity={0.7}>
+									Cancelar
+								</Button>
+							) : (
+								<Button color={colors.gray300} onPress={onClose} activeOpacity={0.7}>
+									Fechar
+								</Button>
+							)}
+
+							{editStudent ? (
+								<Button color={colors.green} onPress={() => { }} activeOpacity={0.7}>
+									Salvar
+								</Button>
+							) : (
+								<Button color={colors.yellow} onPress={() => setEditStudent(true)} activeOpacity={0.7}>
+									Editar
+								</Button>
+							)}
 						</ButtonsContainer>
 					</ModalItem>
 				</TouchableWithoutFeedback>

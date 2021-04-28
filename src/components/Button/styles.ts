@@ -4,9 +4,11 @@ import { colors } from '../../styles/colors'
 import fonts from '../../styles/fonts'
 
 export const Container = styled.TouchableOpacity`
+	flex: 1;
 	border-radius: 8px;
+	margin: 0 3px;
 	height: 50px;
-	width: 46%;
+	flex-direction: row;
 	align-items: center;
 	justify-content: center;
 `

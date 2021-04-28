@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View } from 'react-native'
+import { RectButtonProps } from 'react-native-gesture-handler'
 import Swipeable from 'react-native-gesture-handler/Swipeable'
 import Animated from 'react-native-reanimated'
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5'
@@ -20,12 +21,28 @@ import {
 	DayOfWeek
 } from './styles'
 
-interface StudentCardProps {
+interface StudentCardProps extends RectButtonProps {
 	student: Student
 	onDelete: () => void
 }
 
-export function StudentCard({ student, onDelete }: StudentCardProps) {
+export function StudentCard({ student, onDelete, ...rest }: StudentCardProps) {
+
+	const studentParsed = useMemo(() => {
+		return {
+			...student,
+			name: student.name.length > 25 ? `${student.name.substring(0, 25)}...` : student.name,
+			schedules: student.schedules.map((schedule) => {
+				return {
+					...schedule,
+					dayOfWeek: {
+						...schedule.dayOfWeek,
+						dayWeek: schedule.dayOfWeek.dayWeek.split('-')[0]
+					}
+				}
+			})
+		}
+	}, [student])
 
 	return (
 		<Swipeable
@@ -40,16 +57,16 @@ export function StudentCard({ student, onDelete }: StudentCardProps) {
 				</Animated.View>
 			)}
 		>
-			<Container>
+			<Container {...rest}>
 				<StudentInfo>
-					<StudentName>{student.name}</StudentName>
+					<StudentName>{studentParsed.name}</StudentName>
 					<StudentPhoneContainer>
 						<FontAwesomeIcon name="whatsapp" size={20} color={colors.greenWhatsapp} />
-						<StudentPhone>{student.phone || "Não informado"}</StudentPhone>
+						<StudentPhone>{studentParsed.phone || "Não informado"}</StudentPhone>
 					</StudentPhoneContainer>
 				</StudentInfo>
 				<StudentClassDays>
-					{student.schedules && student.schedules.map(schedule => {
+					{studentParsed.schedules && studentParsed.schedules.map(schedule => {
 						return (
 							<DayOfWeek key={schedule.id}>
 								{schedule.dayOfWeek.dayWeek}

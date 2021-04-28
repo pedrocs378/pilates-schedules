@@ -4,7 +4,7 @@ import { RectButton } from 'react-native-gesture-handler'
 import { colors } from '../../styles/colors'
 import fonts from '../../styles/fonts'
 
-export const Container = styled.View`
+export const Container = styled(RectButton)`
 	flex-direction: row;
 	margin-top: 11px;
 `
