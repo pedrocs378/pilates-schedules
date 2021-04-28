@@ -11,6 +11,7 @@ import ptBR from 'date-fns/locale/pt-BR'
 import { useStudents } from '../../contexts/students'
 
 import { Load } from '../../components/Load'
+import { ClassCard } from '../../components/ClassCard'
 
 import { colors } from '../../styles/colors'
 
@@ -18,10 +19,6 @@ import {
 	Container,
 	Header,
 	Title,
-	Class,
-	Time,
-	ClassStudents,
-	Student,
 	WithoutClassesMessageBox,
 	WithoutClassesMessageBoxText
 } from './styles'
@@ -67,20 +64,6 @@ export function Home() {
 	const handleGoToClassSchedule = useCallback((students: StudentProps[], date: Date) => {
 		navigation.navigate('ClassSchedule', { students, date: date.toString() })
 	}, [navigation.navigate])
-
-	const classStudentsParsed = useMemo(() => {
-		return classStudents.map(classData => {
-			return {
-				...classData,
-				students: classData.students.map(student => {
-					return {
-						...student,
-						name: student.name.length > 12 ? `${student.name.substring(0, 12)}...` : student.name
-					}
-				})
-			}
-		})
-	}, [classStudents])
 
 	const title = useMemo(() => {
 		if (isToday(classDate)) {
@@ -154,27 +137,25 @@ export function Home() {
 						/>
 					)}
 				</Header>
-				{classStudentsParsed.length === 0 && (
+				{classStudents.length === 0 && (
 					<WithoutClassesMessageBox>
 						<WithoutClassesMessageBoxText>Sem aulas agendadas hoje 😄</WithoutClassesMessageBoxText>
 					</WithoutClassesMessageBox>
 				)}
 
-				{classStudentsParsed.length > 0 && (
+				{classStudents.length > 0 && (
 					<FlatList
 						showsHorizontalScrollIndicator={false}
 						contentContainerStyle={{ flex: 1 }}
-						data={classStudentsParsed}
+						data={classStudents}
 						keyExtractor={(item) => item.timeParsed}
 						renderItem={({ item, index }) => (
-							<Class key={item.timeParsed} activeOpacity={0.7} onPress={() => handleGoToClassSchedule(classStudents[index].students, item.classDate)}>
-								<Time>{item.timeParsed}</Time>
-								<ClassStudents>
-									{item.students.map(student => (
-										<Student key={student.id}>{student.name}</Student>
-									))}
-								</ClassStudents>
-							</Class>
+							<ClassCard
+								key={item.timeParsed}
+								classData={item}
+								onPress={() => handleGoToClassSchedule(classStudents[index].students, item.classDate)}
+							/>
+
 						)}
 					/>
 				)}

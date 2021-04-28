@@ -113,13 +113,19 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 	}
 
 	function closeModal() {
-		setSchedules(initialSchedules)
-		setName('')
-		setPhone('')
+		setEditStudent(false)
 		onClose()
 	}
 
+	function handleSetEditing() {
+		setName(data.name)
+		setPhone(data.phone)
+		setEditStudent(true)
+	}
+
 	function handleCancelEditing() {
+		setName(data.name)
+		setPhone(data.phone)
 		setEditStudent(false)
 	}
 
@@ -132,10 +138,6 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 			},
 			time: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours(), 0)
 		}])
-	}
-
-	function handleChangePhone(text: string) {
-		setPhone(text)
 	}
 
 	function handleSendWhatsappMessage() {
@@ -221,13 +223,13 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 		<Modal
 			animationType="fade"
 			visible={isVisible}
-			onRequestClose={onClose}
+			onRequestClose={closeModal}
 			transparent
 		>
 			<Container>
 				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 					<ModalItem showsVerticalScrollIndicator={false}>
-						<CloseButton onPress={onClose} activeOpacity={0.2}>
+						<CloseButton onPress={closeModal} activeOpacity={0.2}>
 							<FeatherIcon name="x" size={28} color={colors.gray300} />
 						</CloseButton>
 						<SectionTitle style={{ marginBottom: 25 }}>Dados</SectionTitle>
@@ -236,7 +238,7 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 							selectTextOnFocus
 							autoCapitalize="words"
 							editable={editStudent}
-							value={data.name}
+							value={editStudent ? name : data.name}
 							onChangeText={text => setName(text)}
 						/>
 						<InputTextLabelMasked
@@ -246,8 +248,8 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 							keyboardType="phone-pad"
 							placeholder="(18) 9xxxx-xxxx"
 							editable={editStudent}
-							value={data.phone}
-							onChangeText={handleChangePhone}
+							value={editStudent ? phone : data.phone}
+							onChangeText={text => setPhone(text)}
 						/>
 						<SectionTitleContainer>
 							<SectionTitle>Horários</SectionTitle>
@@ -314,7 +316,7 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 									Cancelar
 								</Button>
 							) : (
-								<Button color={colors.gray300} onPress={onClose} activeOpacity={0.7}>
+								<Button color={colors.gray300} onPress={closeModal} activeOpacity={0.7}>
 									Fechar
 								</Button>
 							)}
@@ -324,7 +326,7 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 									Salvar
 								</Button>
 							) : (
-								<Button color={colors.yellow} onPress={() => setEditStudent(true)} activeOpacity={0.7}>
+								<Button color={colors.yellow} onPress={handleSetEditing} activeOpacity={0.7}>
 									Editar
 								</Button>
 							)}

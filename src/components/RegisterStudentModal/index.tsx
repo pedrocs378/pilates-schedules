@@ -118,10 +118,6 @@ export function RegisterStudentModal({ isVisible, onClose, onSubmit }: RegisterS
 		}])
 	}
 
-	function handleChangePhone(text: string) {
-		setPhone(text)
-	}
-
 	const handleRemoveSchedule = useCallback((id: string) => {
 		if (schedules.length === 1) {
 			setSchedules(initialSchedules)
@@ -214,7 +210,7 @@ export function RegisterStudentModal({ isVisible, onClose, onSubmit }: RegisterS
 							keyboardType="phone-pad"
 							placeholder="(18) 9xxxx-xxxx"
 							value={phone}
-							onChangeText={handleChangePhone}
+							onChangeText={text => setPhone(text)}
 						/>
 						<SectionTitleContainer>
 							<SectionTitle>Horários</SectionTitle>
