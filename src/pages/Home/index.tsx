@@ -122,7 +122,12 @@ export function Home() {
 				<StatusBar style="auto" translucent backgroundColor="transparent" />
 
 				<Header>
+					<TouchableWithoutFeedback onPress={() => navigation.navigate('AppAbout')}>
+						<FontAwesomeIcon name="info-circle" color={colors.white} size={20} />
+					</TouchableWithoutFeedback>
+
 					<Title>{title}</Title>
+
 					<TouchableWithoutFeedback onPress={() => setShowCalendar(oldValue => !oldValue)}>
 						<FontAwesomeIcon name="calendar-alt" color={colors.white} size={23} />
 					</TouchableWithoutFeedback>

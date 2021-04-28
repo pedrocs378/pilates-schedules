@@ -99,8 +99,6 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 		return []
 	})
 
-	console.log(data)
-
 	const { publishStudent } = useStudents()
 
 	async function handleSubmit() {

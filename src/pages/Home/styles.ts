@@ -15,12 +15,12 @@ export const Header = styled.View`
 	padding: 0 20px;
 	flex-direction: row;
 	align-items: center;
+	justify-content: space-between;
 `
 
 export const Title = styled.Text`
 	font-family: ${fonts.heading};
 	font-size: 18px;
-	margin: 0 auto;
 	color: ${colors.white};
 `
 

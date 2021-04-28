@@ -2,6 +2,7 @@ import React from 'react'
 import { createStackNavigator } from '@react-navigation/stack'
 
 import { ClassSchedule } from '../pages/ClassSchedule'
+import { AppAbout } from '../pages/AppAbout'
 import { BottomTabsRoutes } from './bottomTabs.routes'
 
 const { Navigator, Screen } = createStackNavigator()
@@ -18,6 +19,10 @@ export function StackRoutes() {
 			<Screen
 				name="ClassSchedule"
 				component={ClassSchedule}
+			/>
+			<Screen
+				name="AppAbout"
+				component={AppAbout}
 			/>
 		</Navigator>
 	)
