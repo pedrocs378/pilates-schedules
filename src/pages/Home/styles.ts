@@ -21,6 +21,7 @@ export const Header = styled.View`
 export const Title = styled.Text`
 	font-family: ${fonts.heading};
 	font-size: 18px;
+	line-height: 24px;
 	color: ${colors.white};
 `
 

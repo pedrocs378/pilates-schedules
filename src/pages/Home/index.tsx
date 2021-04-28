@@ -123,13 +123,13 @@ export function Home() {
 
 				<Header>
 					<TouchableWithoutFeedback onPress={() => navigation.navigate('AppAbout')}>
-						<FontAwesomeIcon name="info-circle" color={colors.white} size={20} />
+						<FontAwesomeIcon name="info-circle" color={colors.white} size={18} />
 					</TouchableWithoutFeedback>
 
 					<Title>{title}</Title>
 
 					<TouchableWithoutFeedback onPress={() => setShowCalendar(oldValue => !oldValue)}>
-						<FontAwesomeIcon name="calendar-alt" color={colors.white} size={23} />
+						<FontAwesomeIcon name="calendar-alt" color={colors.white} size={24} />
 					</TouchableWithoutFeedback>
 
 					{showCalendar && (

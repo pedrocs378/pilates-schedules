@@ -5,7 +5,7 @@ import FeatherIcon from 'react-native-vector-icons/Feather'
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5'
 import * as Linking from 'expo-linking'
 
-import { version } from '../../../package.json'
+import { expo } from '../../../app.json'
 
 import { colors } from '../../styles/colors'
 
@@ -49,7 +49,7 @@ export function AppAbout() {
 			</Header>
 
 			<Footer>
-				<FooterVersion>Versão {version}</FooterVersion>
+				<FooterVersion>Versão {expo.version}</FooterVersion>
 
 				<FooterCredits>
 					<FooterCreditsText>

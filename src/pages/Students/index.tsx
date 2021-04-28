@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import { Alert, ToastAndroid, View } from 'react-native'
+import React, { useCallback, useState } from 'react'
+import { Alert, ToastAndroid } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import FeatherIcon from 'react-native-vector-icons/Feather'
 
