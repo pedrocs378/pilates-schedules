@@ -25,6 +25,11 @@ interface DeleteStudentFromClassProps {
 	studentId: string
 }
 
+interface AddStudentToClassProps {
+	classId: string
+	student: StudentInfoProps
+}
+
 interface ClassProps {
 	id: string
 	classDate: string
@@ -40,6 +45,7 @@ interface ClassesContextData {
 	getClassByDate: (date: string) => Promise<ClassProps>
 	publishClass: (data: PublishClassProps) => Promise<void>
 	updateClass: (data: UpdateClassProps) => Promise<void>
+	addStudentToClass: (data: AddStudentToClassProps) => Promise<void>
 	deleteStudentFromClass: (data: DeleteStudentFromClassProps) => Promise<void>
 }
 
@@ -199,8 +205,50 @@ export function ClassesProvider({ children }: ClassesProvider) {
 		);
 	}
 
+	async function addStudentToClass({ classId, student }: AddStudentToClassProps) {
+		const graphcms = getGraphCMSClient()
+
+		const response = await graphcms.request<GraphCMSResponse>(
+			`
+		{
+			classes(where: { id: "${classId}" }) {
+				id
+				classDate
+				students
+			}
+		}
+			
+		`
+		)
+
+		const [classData] = response.classes
+
+		const studentsUpdated = classData.students
+		studentsUpdated.push(student)
+
+		const { updateClass } = await graphcms.request(
+			`mutation updateExistingClass($students: [Json!]) {
+				updateClass(where: { id: "${classId}" }  data: { students: $students }) {
+					id
+					classDate
+					students
+				}
+			}`, {
+			students: studentsUpdated
+		}
+		)
+
+		await graphcms.request(
+			`mutation {
+				publishClass(where: { id: "${updateClass.id}" }, to: PUBLISHED) {
+					id
+				}
+			}`
+		);
+	}
+
 	return (
-		<ClassesContext.Provider value={{ getClasses, getClassByDate, publishClass, updateClass, deleteStudentFromClass }}>
+		<ClassesContext.Provider value={{ getClasses, getClassByDate, publishClass, updateClass, addStudentToClass, deleteStudentFromClass }}>
 			{children}
 		</ClassesContext.Provider>
 	)

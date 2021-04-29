@@ -68,7 +68,7 @@ export function StudentProvider({ children }: StudentProviderProps) {
 	const [isErrored, setIsErrored] = useState(false)
 	const [isLoading, setIsLoading] = useState(true)
 
-	const { getClasses, deleteStudentFromClass } = useClasses()
+	const { getClasses, addStudentToClass, deleteStudentFromClass } = useClasses()
 
 	useEffect(() => {
 		if (isSubscription) {
@@ -156,6 +156,21 @@ export function StudentProvider({ children }: StudentProviderProps) {
 				}
 			}`
 		);
+
+		const classes = await getClasses()
+
+		for await (const classData of classes) {
+			if ((newSchedules.some(schedule => new Date(classData.classDate).getDay() === schedule.dayOfWeek.numberWeek)) && (newSchedules.some(schedule => new Date(classData.classDate).getHours() === new Date(schedule.time).getHours()))) {
+				addStudentToClass({
+					classId: classData.id,
+					student: {
+						studentId: createStudent.id,
+						hasMissed: false,
+						willMiss: false,
+					}
+				})
+			}
+		}
 	}
 
 	async function updateStudent({ studentId, name, phone = "", schedules }: UpdateStudentProps) {
