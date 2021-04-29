@@ -7,6 +7,7 @@ import { format } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
 
 import { Load } from '../../components/Load'
+import { RescheduleModal } from '../../components/RescheduleModal'
 
 import { useClasses } from '../../contexts/classes'
 import { Student as StudentProps } from '../../contexts/students'
@@ -45,6 +46,7 @@ export function ClassSchedule() {
 
 	const [isSubscription, setIsSubscription] = useState(true)
 	const [isLoading, setIsLoading] = useState(true)
+	const [showRescheduleModal, setShowRescheduleModal] = useState(false)
 	const [classStudents, setClassStudents] = useState<ClassStudentProps[]>([])
 	const [classId, setClassId] = useState('')
 
@@ -172,6 +174,8 @@ export function ClassSchedule() {
 		await fetchClass()
 	}, [classDate, classStudents, fetchClass])
 
+	const handleShowRescheduleModal = useCallback(() => setShowRescheduleModal(true), [])
+
 	const title = useMemo(() => {
 		return format(new Date(classDate), "dd/MM/yyyy '-' HH:mm", { locale: ptBR })
 	}, [classDate])
@@ -192,6 +196,11 @@ export function ClassSchedule() {
 
 	return (
 		<Container>
+			<RescheduleModal
+				isVisible={showRescheduleModal}
+				onClose={() => setShowRescheduleModal(false)}
+			/>
+
 			<Header>
 				<TouchableNativeFeedback onPress={navigation.goBack}>
 					<FeatherIcon name="arrow-left" size={24} color={colors.white} />
@@ -231,7 +240,7 @@ export function ClassSchedule() {
 									</AbsenceControl>
 								</StudentAbsenceControlContainer>
 								{student.willMiss && (
-									<RescheduleButton activeOpacity={0.8}>
+									<RescheduleButton onPress={handleShowRescheduleModal} activeOpacity={0.8}>
 										<RescheduleButtonText>Remarcar</RescheduleButtonText>
 									</RescheduleButton>
 								)}
