@@ -104,6 +104,7 @@ export function Students() {
 				isVisible={isEditStudentModalVisible}
 				onClose={() => handleOpenOrCloseEditModal(false, {} as Student)}
 				data={studentSelected}
+				onSubmit={handleReloadStudents}
 			/>
 
 			<ScrollView showsVerticalScrollIndicator={false}>

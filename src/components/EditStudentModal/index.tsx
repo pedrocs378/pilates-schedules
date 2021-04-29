@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { Keyboard, Modal, ToastAndroid, TouchableWithoutFeedback } from 'react-native'
+import { ActivityIndicator, Keyboard, Modal, ToastAndroid, TouchableWithoutFeedback } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5'
 import FeatherIcon from 'react-native-vector-icons/Feather'
@@ -50,7 +50,7 @@ interface ShowScheduleCalendar {
 interface EditStudentModalProps {
 	isVisible: boolean
 	onClose: () => void
-	onSubmit?: () => void
+	onSubmit: () => void
 	data: Student
 }
 
@@ -82,6 +82,7 @@ const initialScheduleCalendar = {
 }
 
 export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStudentModalProps) {
+	const [isSubmiting, setIsSubmiting] = useState(false)
 	const [editStudent, setEditStudent] = useState(false)
 	const [name, setName] = useState(data.name)
 	const [phone, setPhone] = useState(data?.phone || '')
@@ -99,16 +100,26 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 		return []
 	})
 
-	const { publishStudent } = useStudents()
+	const { updateStudent } = useStudents()
 
 	async function handleSubmit() {
 		try {
+			setIsSubmiting(true)
+			await updateStudent({
+				studentId: data.id,
+				name,
+				phone,
+				schedules
+			})
 
-			ToastAndroid.show('Aluno cadastrado com sucesso', ToastAndroid.LONG)
-			onSubmit && onSubmit()
+			ToastAndroid.show('Aluno modificado com sucesso', ToastAndroid.LONG)
+			onSubmit()
 			closeModal()
 		} catch (err) {
+			console.error(err)
 			ToastAndroid.show('Erro ao cadastrar aluno', ToastAndroid.LONG)
+		} finally {
+			setIsSubmiting(false)
 		}
 	}
 
@@ -118,14 +129,37 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 	}
 
 	function handleSetEditing() {
+
+		let calendars = {} as ShowScheduleCalendar
+
+		data.schedules.forEach(schedule => {
+			calendars = {
+				...calendars,
+				[schedule.id]: false
+			}
+		})
+
 		setName(data.name)
 		setPhone(data?.phone || '')
+		setSchedules(data.schedules)
+		setShowCalendar(calendars)
 		setEditStudent(true)
 	}
 
 	function handleCancelEditing() {
+		let calendars = {} as ShowScheduleCalendar
+
+		data.schedules.forEach(schedule => {
+			calendars = {
+				...calendars,
+				[schedule.id]: false
+			}
+		})
+
 		setName(data.name)
 		setPhone(data?.phone || '')
+		setSchedules(data.schedules)
+		setShowCalendar(calendars)
 		setEditStudent(false)
 	}
 
@@ -207,13 +241,15 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 			return []
 		}
 
-		return data.schedules.map(schedule => {
+		const schedulesToShow = editStudent ? schedules : data.schedules
+
+		return schedulesToShow.map(schedule => {
 			return {
 				...schedule,
-				time: format(new Date(schedule.time), 'HH:mm', { locale: ptBR })
+				timeFormated: format(new Date(schedule.time), 'HH:mm', { locale: ptBR }),
 			}
 		})
-	}, [data.schedules])
+	}, [data.schedules, editStudent, schedules])
 
 	if (!data.schedules) {
 		return null
@@ -268,29 +304,30 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 											labelText="Dia da semana"
 											selectedValue={schedule.dayOfWeek.numberWeek}
 											enabled={editStudent}
+											onValueChange={(value) => handleChangeDayOfWeek(schedule.id, value as number)}
 										/>
 										<InputButtonLabel
 											style={{ width: '27%', marginLeft: 'auto' }}
 											labelText="Hora"
-											value={schedule.time}
+											value={schedule.timeFormated}
 											disabled={!editStudent}
-											onPress={() => { }}
+											onPress={() => handleOpenDateTimePicker(schedule.id)}
 										/>
 
-										{/* {showCalendar[schedule.id] && (
+										{showCalendar[schedule.id] && (
 											<DateTimePicker
 												value={schedule.time}
 												mode="time"
 												display="default"
 												onChange={(_, selectedDate) => handleChangeTime(schedule.id, selectedDate)}
 											/>
-										)} */}
+										)}
 									</InputsContainer>
 									{editStudent && (
 										<DeleteScheduleContainer>
 											<Separator />
 
-											<DeleteScheduleButton onPress={() => { }}>
+											<DeleteScheduleButton onPress={() => handleRemoveSchedule(schedule.id)}>
 												<DeleteScheduleButtonText>Excluir horário</DeleteScheduleButtonText>
 											</DeleteScheduleButton>
 
@@ -311,7 +348,11 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 						)}
 						<ButtonsContainer>
 							{editStudent ? (
-								<Button color={colors.green} onPress={() => { }}>
+								<Button
+									icon={() => isSubmiting ? <ActivityIndicator size="small" color={colors.white} style={{ marginRight: 10 }} /> : null}
+									color={colors.green}
+									onPress={handleSubmit}
+								>
 									Salvar
 								</Button>
 							) : (

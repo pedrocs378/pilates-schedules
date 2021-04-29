@@ -32,12 +32,27 @@ type PublishStudentProps = {
 	}[]
 }
 
+type UpdateStudentProps = {
+	studentId: string
+	name: string
+	phone?: string
+	schedules: {
+		id: string
+		dayOfWeek: {
+			numberWeek: number
+			dayWeek: string
+		}
+		time: Date
+	}[]
+}
+
 interface StudentContextData {
 	isErrored: boolean
 	isLoading: boolean
 	students: Student[]
 	fetchStudents: () => Promise<Student[]>
 	publishStudent: (student: PublishStudentProps) => Promise<void>
+	updateStudent: (student: UpdateStudentProps) => Promise<void>
 	deleteStudent: (id: string) => Promise<void>
 }
 
@@ -95,7 +110,7 @@ export function StudentProvider({ children }: StudentProviderProps) {
 		}
 	}
 
-	async function publishStudent({ name, phone, schedules }: PublishStudentProps) {
+	async function publishStudent({ name, phone = "", schedules }: PublishStudentProps) {
 		const graphcms = getGraphCMSClient()
 
 		const newSchedules = schedules.map(schedule => {
@@ -143,6 +158,78 @@ export function StudentProvider({ children }: StudentProviderProps) {
 		);
 	}
 
+	async function updateStudent({ studentId, name, phone = "", schedules }: UpdateStudentProps) {
+		const graphcms = getGraphCMSClient()
+
+		const newSchedules = schedules.map(schedule => {
+			return {
+				time: schedule.time,
+				dayOfWeek: schedule.dayOfWeek
+			}
+		})
+
+		await graphcms.request(
+			`mutation {
+				deleteManySchedulesConnection(where: { student: { id: "${studentId}" } }) {
+					edges {
+						node {
+							id
+						}
+					}
+				}
+			}`
+		);
+
+		await graphcms.request(
+			`mutation {
+				unpublishManySchedulesConnection(where: { id: "${studentId}" }, from: PUBLISHED) {
+					edges {
+						node {
+							id
+						}
+					}
+				}
+			}`
+		);
+
+		const { updateStudent } = await graphcms.request(
+			`mutation updateStudent($schedules: [ScheduleCreateInput!]){
+				updateStudent(where: { id: "${studentId}" }, data: { name: "${name}", phone: "${phone}", schedules: { create: $schedules } }) {
+					id
+					name
+					phone
+					schedules {
+						id
+						time
+						dayOfWeek
+					}
+				}
+			}`, {
+			schedules: newSchedules
+		}
+		)
+
+		await graphcms.request(
+			`mutation {
+				publishStudent(where: { id: "${updateStudent.id}" }, to: PUBLISHED) {
+					id
+				}
+			}`
+		);
+
+		await graphcms.request(
+			`mutation {
+				publishManySchedulesConnection(where: { student: { id: "${updateStudent.id}" } }, to: PUBLISHED) {
+					edges {
+						node {
+							id
+						}
+					}
+				}
+			}`
+		);
+	}
+
 	async function deleteStudent(id: string) {
 		const graphcms = getGraphCMSClient()
 
@@ -173,7 +260,7 @@ export function StudentProvider({ children }: StudentProviderProps) {
 	}
 
 	return (
-		<StudentContext.Provider value={{ isLoading, isErrored, students, fetchStudents, publishStudent, deleteStudent }}>
+		<StudentContext.Provider value={{ isLoading, isErrored, students, fetchStudents, updateStudent, publishStudent, deleteStudent }}>
 			{children}
 		</StudentContext.Provider>
 	)
