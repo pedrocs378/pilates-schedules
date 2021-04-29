@@ -4,6 +4,10 @@ import { ScrollView } from 'react-native-gesture-handler'
 import { colors } from '../../styles/colors'
 import fonts from '../../styles/fonts'
 
+interface ScheduleProps {
+	isLast?: boolean
+}
+
 export const Container = styled.View`
 	flex: 2;
 	align-items: center;
@@ -50,8 +54,8 @@ export const NewScheduleButtonText = styled.Text`
 	font-size: 14px;
 `
 
-export const Schedule = styled.View`
-	margin-bottom: 10px;
+export const Schedule = styled.View<ScheduleProps>`
+	margin-bottom: ${({ isLast }) => isLast ? '30px' : '10px'};
 `
 
 export const InputsContainer = styled.View`

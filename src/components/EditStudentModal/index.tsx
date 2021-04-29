@@ -295,9 +295,9 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 								</NewScheduleButton>
 							)}
 						</SectionTitleContainer>
-						{schedulesFormated.map(schedule => {
+						{schedulesFormated.map((schedule, index) => {
 							return (
-								<Schedule key={schedule.id}>
+								<Schedule key={schedule.id} isLast={index === schedulesFormated.length - 1}>
 									<InputsContainer>
 										<InputSelectLabel
 											style={{ width: '70%' }}
@@ -337,7 +337,7 @@ export function EditStudentModal({ isVisible, data, onClose, onSubmit }: EditStu
 								</Schedule>
 							)
 						})}
-						{!!data.phone && (
+						{!!data.phone && !editStudent && (
 							<Button
 								icon={() => <FontAwesomeIcon name="whatsapp" color={colors.white} size={23} style={{ marginRight: 10 }} />}
 								color={colors.greenWhatsapp}
