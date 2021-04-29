@@ -49,6 +49,7 @@ export function ClassSchedule() {
 	const [showRescheduleModal, setShowRescheduleModal] = useState(false)
 	const [classStudents, setClassStudents] = useState<ClassStudentProps[]>([])
 	const [classId, setClassId] = useState('')
+	const [studentIdToReschedule, setStudentIdToReschedule] = useState('')
 
 	const navigation = useNavigation()
 	const route = useRoute()
@@ -174,7 +175,10 @@ export function ClassSchedule() {
 		await fetchClass()
 	}, [classDate, classStudents, fetchClass])
 
-	const handleShowRescheduleModal = useCallback(() => setShowRescheduleModal(true), [])
+	const handleShowRescheduleModal = useCallback((id: string) => {
+		setStudentIdToReschedule(id)
+		setShowRescheduleModal(true)
+	}, [])
 
 	const title = useMemo(() => {
 		return format(new Date(classDate), "dd/MM/yyyy '-' HH:mm", { locale: ptBR })
@@ -199,6 +203,7 @@ export function ClassSchedule() {
 			<RescheduleModal
 				isVisible={showRescheduleModal}
 				onClose={() => setShowRescheduleModal(false)}
+				studentId={studentIdToReschedule}
 			/>
 
 			<Header>
@@ -240,7 +245,7 @@ export function ClassSchedule() {
 									</AbsenceControl>
 								</StudentAbsenceControlContainer>
 								{student.willMiss && (
-									<RescheduleButton onPress={handleShowRescheduleModal} activeOpacity={0.8}>
+									<RescheduleButton onPress={() => handleShowRescheduleModal(student.id)} activeOpacity={0.8}>
 										<RescheduleButtonText>Remarcar</RescheduleButtonText>
 									</RescheduleButton>
 								)}

@@ -46,6 +46,13 @@ type UpdateStudentProps = {
 	}[]
 }
 
+type AddNewRescheduleProps = {
+	studentId: string
+	schedule: {
+		classDate: Date
+	}
+}
+
 interface StudentContextData {
 	isErrored: boolean
 	isLoading: boolean
@@ -54,6 +61,7 @@ interface StudentContextData {
 	publishStudent: (student: PublishStudentProps) => Promise<void>
 	updateStudent: (student: UpdateStudentProps) => Promise<void>
 	deleteStudent: (id: string) => Promise<void>
+	addNewReschedule: (data: AddNewRescheduleProps) => Promise<void>
 }
 
 interface StudentProviderProps {
@@ -274,8 +282,50 @@ export function StudentProvider({ children }: StudentProviderProps) {
 		}
 	}
 
+	async function addNewReschedule({ studentId, schedule }: AddNewRescheduleProps) {
+		const graphcms = getGraphCMSClient()
+
+		const { student } = await graphcms.request(
+			`
+				{
+					student(where: { id: "${studentId}" }) {
+						id
+						reschedules
+					}
+				}
+			`
+		)
+
+		const reschedules = [...student.reschedules, schedule]
+
+		const { updateStudent } = await graphcms.request(
+			`mutation updateStudent($reschedules: [Json!]){
+				updateStudent(where: { id: "${studentId}" }, data: { reschedules: $reschedules }) {
+					id
+					name
+					phone
+					schedules {
+						id
+						time
+						dayOfWeek
+					}
+				}
+			}`, {
+			reschedules
+		}
+		)
+
+		await graphcms.request(
+			`mutation {
+				publishStudent(where: { id: "${updateStudent.id}" }, to: PUBLISHED) {
+					id
+				}
+			}`
+		);
+	}
+
 	return (
-		<StudentContext.Provider value={{ isLoading, isErrored, students, fetchStudents, updateStudent, publishStudent, deleteStudent }}>
+		<StudentContext.Provider value={{ isLoading, isErrored, students, fetchStudents, updateStudent, publishStudent, deleteStudent, addNewReschedule }}>
 			{children}
 		</StudentContext.Provider>
 	)

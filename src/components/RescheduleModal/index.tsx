@@ -1,29 +1,35 @@
 import React, { useMemo, useState } from 'react'
-import { Modal, View } from 'react-native'
+import { ActivityIndicator, Modal, ToastAndroid } from 'react-native'
 import FeatherIcon from 'react-native-vector-icons/Feather'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { format } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
 
-import { colors } from '../../styles/colors'
 import { InputButtonLabel } from '../InputButtonLabel'
+import { Button } from '../Button'
+
+import { useStudents } from '../../contexts/students'
+
+import { colors } from '../../styles/colors'
 
 import { Container, ModalItem, CloseButton, SectionTitle, ScheduleContainer } from './styles'
-import { Button } from '../Button'
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 
 interface RescheduleModalProps {
 	isVisible: boolean
 	onClose: () => void
 	onSubmit?: () => void
+	studentId: string
 }
 
 const initialDate = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours(), 0)
 
-export function RescheduleModal({ isVisible, onClose }: RescheduleModalProps) {
+export function RescheduleModal({ isVisible, studentId, onClose }: RescheduleModalProps) {
 	const [rescheduleDateTime, setRescheduleDateTime] = useState(initialDate)
+	const [isSaving, setIsSaving] = useState(false)
 	const [showDateCalendar, setShowDateCalendar] = useState(false)
 	const [showTimeCalendar, setShowTimeCalendar] = useState(false)
+
+	const { addNewReschedule } = useStudents()
 
 	function closeModal() {
 		setRescheduleDateTime(initialDate)
@@ -45,6 +51,26 @@ export function RescheduleModal({ isVisible, onClose }: RescheduleModalProps) {
 
 		if (time) {
 			setRescheduleDateTime(time)
+		}
+	}
+
+	async function handleSaveReschedule() {
+		try {
+			setIsSaving(true)
+
+			await addNewReschedule({
+				studentId,
+				schedule: {
+					classDate: rescheduleDateTime
+				}
+			})
+
+			ToastAndroid.show('Salvo', ToastAndroid.LONG)
+		} catch (err) {
+			console.error(err)
+			ToastAndroid.show('Algo deu errado, tente novamente', ToastAndroid.LONG)
+		} finally {
+			setIsSaving(false)
 		}
 	}
 
@@ -103,8 +129,9 @@ export function RescheduleModal({ isVisible, onClose }: RescheduleModalProps) {
 						)}
 					</ScheduleContainer>
 					<Button
+						icon={() => isSaving ? <ActivityIndicator size="small" color={colors.white} style={{ marginRight: 10 }} /> : null}
 						color={colors.green}
-						onPress={() => { }}
+						onPress={handleSaveReschedule}
 					>
 						Salvar
 					</Button>
