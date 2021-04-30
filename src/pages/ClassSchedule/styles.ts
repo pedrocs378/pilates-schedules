@@ -4,6 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors } from '../../styles/colors'
 import fonts from '../../styles/fonts'
 
+interface RescheduleButtonProps {
+	isDisabled: boolean
+}
+
 interface StudentProps {
 	isLast?: boolean
 }
@@ -81,12 +85,12 @@ export const AbsenceControlText = styled.Text`
 	font-size: 12px;
 `
 
-export const RescheduleButton = styled.TouchableOpacity`
+export const RescheduleButton = styled.TouchableOpacity<RescheduleButtonProps>`
 	height: 40px;
 	width: 100%;
 	align-items: center;
 	justify-content: center;
-	background-color: ${colors.blue};
+	background-color: ${({ isDisabled }) => isDisabled ? colors.gray300 : colors.blue};
 	border-radius: 5px;
 	margin-top: 10px;
 `

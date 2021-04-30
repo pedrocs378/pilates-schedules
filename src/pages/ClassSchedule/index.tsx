@@ -28,11 +28,14 @@ import {
 	RescheduleButton,
 	RescheduleButtonText,
 } from './styles'
+import isEqual from 'date-fns/isEqual'
+import { Button } from '../../components/Button'
 
 interface ClassStudentProps {
 	id: string
 	name: string
 	hasMissed: boolean
+	hasScheduled: boolean
 	willMiss: boolean
 }
 
@@ -64,10 +67,26 @@ export function ClassSchedule() {
 				classData.students.map(({ studentId, hasMissed, willMiss }) => {
 					const student = students.find(data => data.id === studentId)
 
+					if (student && student.reschedules.some(schedule => {
+						const deschedulededDate = new Date(new Date(schedule.deschedulededDate).getFullYear(), new Date(schedule.deschedulededDate).getMonth(), new Date(schedule.deschedulededDate).getDate())
+						const classDateSelected = new Date(new Date(classDate).getFullYear(), new Date(classDate).getMonth(), new Date(classDate).getDate())
+
+						return isEqual(deschedulededDate, classDateSelected)
+					})) {
+						return {
+							id: studentId,
+							name: student?.name ?? '',
+							hasMissed,
+							hasScheduled: true,
+							willMiss
+						}
+					}
+
 					return {
 						id: studentId,
 						name: student?.name ?? '',
 						hasMissed,
+						hasScheduled: false,
 						willMiss
 					}
 
@@ -77,6 +96,7 @@ export function ClassSchedule() {
 						id: student.id,
 						name: student.name,
 						hasMissed: false,
+						hasScheduled: false,
 						willMiss: false
 					}
 				})
@@ -137,7 +157,7 @@ export function ClassSchedule() {
 	}, [classDate, classStudents, fetchClass])
 
 	const handleWillMiss = useCallback(async (student: ClassStudentProps) => {
-		if (student.hasMissed) {
+		if (student.hasMissed || student.hasScheduled) {
 			return
 		}
 
@@ -240,7 +260,7 @@ export function ClassSchedule() {
 									</AbsenceControl>
 									<AbsenceControl isDisabled={student.hasMissed} onPress={() => handleWillMiss(student)}>
 										<CheckBox
-											disabled={student.hasMissed ? true : false}
+											disabled={student.hasMissed ? true : student.hasScheduled ? true : false}
 											value={student.hasMissed ? false : student.willMiss}
 											onValueChange={() => handleWillMiss(student)}
 											tintColors={{
@@ -252,8 +272,15 @@ export function ClassSchedule() {
 									</AbsenceControl>
 								</StudentAbsenceControlContainer>
 								{student.willMiss && (
-									<RescheduleButton onPress={() => handleShowRescheduleModal(student.id)} activeOpacity={0.8}>
-										<RescheduleButtonText>Remarcar</RescheduleButtonText>
+									<RescheduleButton
+										disabled={student.hasScheduled}
+										isDisabled={student.hasScheduled}
+										onPress={() => handleShowRescheduleModal(student.id)}
+										activeOpacity={0.8}
+									>
+										<RescheduleButtonText>
+											{student.hasScheduled ? "Remarcado para outra data" : "Remarcar"}
+										</RescheduleButtonText>
 									</RescheduleButton>
 								)}
 							</StudentItem>
