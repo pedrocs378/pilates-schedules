@@ -17,6 +17,9 @@ export interface Student {
 	name: string
 	phone?: string
 	schedules: StudentSchedules[]
+	reschedules: {
+		classDate: string
+	}[]
 }
 
 type PublishStudentProps = {
@@ -103,6 +106,7 @@ export function StudentProvider({ children }: StudentProviderProps) {
 						time
 						dayOfWeek
 					}
+					reschedules
 				}
 			}
 			  

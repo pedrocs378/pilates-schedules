@@ -23,7 +23,7 @@ interface RescheduleModalProps {
 
 const initialDate = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours(), 0)
 
-export function RescheduleModal({ isVisible, studentId, onClose }: RescheduleModalProps) {
+export function RescheduleModal({ isVisible, studentId, onClose, onSubmit }: RescheduleModalProps) {
 	const [rescheduleDateTime, setRescheduleDateTime] = useState(initialDate)
 	const [isSaving, setIsSaving] = useState(false)
 	const [showDateCalendar, setShowDateCalendar] = useState(false)
@@ -66,6 +66,8 @@ export function RescheduleModal({ isVisible, studentId, onClose }: RescheduleMod
 			})
 
 			ToastAndroid.show('Salvo', ToastAndroid.LONG)
+
+			onSubmit && onSubmit()
 		} catch (err) {
 			console.error(err)
 			ToastAndroid.show('Algo deu errado, tente novamente', ToastAndroid.LONG)

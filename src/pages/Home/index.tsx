@@ -5,7 +5,7 @@ import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5'
 import { useNavigation } from '@react-navigation/core'
 import DateTimePicker from '@react-native-community/datetimepicker'
-import { format, isToday } from 'date-fns'
+import { format, isToday, isEqual } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
 
 import { useStudents } from '../../contexts/students'
@@ -61,8 +61,8 @@ export function Home() {
 		setClassDate(currentDate)
 	}
 
-	const handleGoToClassSchedule = useCallback((students: StudentProps[], date: Date) => {
-		navigation.navigate('ClassSchedule', { students, date: date.toString() })
+	const handleGoToClassSchedule = useCallback((scheduleStudents: StudentProps[], date: Date) => {
+		navigation.navigate('ClassSchedule', { students: scheduleStudents, date: date.toString() })
 	}, [navigation.navigate])
 
 	const title = useMemo(() => {
@@ -77,6 +77,16 @@ export function Home() {
 
 	useEffect(() => {
 		const studentsOfDay = students.filter(student => student.schedules.some(schedule => schedule.dayOfWeek.numberWeek === classDate.getDay()))
+		const studentsRescheduledOfDay = students
+			.filter(student => !!student.reschedules && student.reschedules.length > 0)
+			.filter(student => {
+				return student.reschedules.some(schedule => {
+					const rescheduleDate = new Date(new Date(schedule.classDate).getFullYear(), new Date(schedule.classDate).getMonth(), new Date(schedule.classDate).getDate())
+					const classDateSelected = new Date(classDate.getFullYear(), classDate.getMonth(), classDate.getDate())
+
+					return isEqual(rescheduleDate, classDateSelected)
+				})
+			})
 
 		let schedules = [] as Date[]
 
@@ -87,18 +97,39 @@ export function Home() {
 				if (!schedules.some(schedule => new Date(schedule).getHours() === new Date(studentTime[0].time).getHours())) {
 					schedules.push(studentTime[0].time)
 				}
-
 			})
+
+		if (studentsRescheduledOfDay && studentsRescheduledOfDay.length > 0) {
+			studentsRescheduledOfDay
+				.forEach(student => {
+					const studentTime = student.reschedules.find(schedule => {
+						const rescheduleDate = new Date(new Date(schedule.classDate).getFullYear(), new Date(schedule.classDate).getMonth(), new Date(schedule.classDate).getDate())
+						const classDateSelected = new Date(classDate.getFullYear(), classDate.getMonth(), classDate.getDate())
+
+						return isEqual(rescheduleDate, classDateSelected)
+					})
+
+					if (studentTime && !schedules.some(schedule => new Date(schedule).getHours() === new Date(studentTime.classDate).getHours())) {
+						schedules.push(new Date(studentTime.classDate))
+					}
+				})
+		}
 
 		schedules = schedules.sort((a, b) => new Date(a).getHours() - new Date(b).getHours())
 
 		const classes = schedules.map(schedule => {
-			const studentsAtSametime = studentsOfDay.filter(student => student.schedules.some(studentSchedule => (new Date(studentSchedule.time).getHours() === new Date(schedule).getHours()) && (studentSchedule.dayOfWeek.numberWeek === classDate.getDay())))
+			const studentsAtSametime = studentsOfDay.filter(student => {
+				return student.schedules.some(studentSchedule => (new Date(studentSchedule.time).getHours() === new Date(schedule).getHours()) && (studentSchedule.dayOfWeek.numberWeek === classDate.getDay()))
+			})
+
+			const studentsRescheduledAtSametime = studentsRescheduledOfDay.filter(student => {
+				return student.reschedules.some(studentReschedule => (new Date(studentReschedule.classDate).getHours() === new Date(schedule).getHours()) && (new Date(studentReschedule.classDate).getDay() === classDate.getDay()))
+			})
 
 			return {
 				timeParsed: format(new Date(schedule), 'HH:mm', { locale: ptBR }),
 				classDate: new Date(new Date(classDate).getFullYear(), new Date(classDate).getMonth(), new Date(classDate).getDate(), new Date(schedule).getHours(), new Date(schedule).getMinutes()),
-				students: studentsAtSametime
+				students: [...studentsAtSametime, ...studentsRescheduledAtSametime]
 			}
 		})
 
