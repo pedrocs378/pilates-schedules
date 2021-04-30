@@ -18,6 +18,7 @@ export interface Student {
 	phone?: string
 	schedules: StudentSchedules[]
 	reschedules: {
+		deschedulededDate: string
 		classDate: string
 	}[]
 }
@@ -52,6 +53,7 @@ type UpdateStudentProps = {
 type AddNewRescheduleProps = {
 	studentId: string
 	schedule: {
+		deschedulededDate: Date
 		classDate: Date
 	}
 }
@@ -313,6 +315,7 @@ export function StudentProvider({ children }: StudentProviderProps) {
 						time
 						dayOfWeek
 					}
+					reschedules
 				}
 			}`, {
 			reschedules

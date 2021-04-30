@@ -19,12 +19,11 @@ interface RescheduleModalProps {
 	onClose: () => void
 	onSubmit?: () => void
 	studentId: string
+	defaultDate: string
 }
 
-const initialDate = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours(), 0)
-
-export function RescheduleModal({ isVisible, studentId, onClose, onSubmit }: RescheduleModalProps) {
-	const [rescheduleDateTime, setRescheduleDateTime] = useState(initialDate)
+export function RescheduleModal({ isVisible, studentId, defaultDate, onClose, onSubmit }: RescheduleModalProps) {
+	const [rescheduleDateTime, setRescheduleDateTime] = useState(new Date(defaultDate))
 	const [isSaving, setIsSaving] = useState(false)
 	const [showDateCalendar, setShowDateCalendar] = useState(false)
 	const [showTimeCalendar, setShowTimeCalendar] = useState(false)
@@ -32,7 +31,7 @@ export function RescheduleModal({ isVisible, studentId, onClose, onSubmit }: Res
 	const { addNewReschedule } = useStudents()
 
 	function closeModal() {
-		setRescheduleDateTime(initialDate)
+		setRescheduleDateTime(new Date(defaultDate))
 		setShowTimeCalendar(false)
 		setShowDateCalendar(false)
 		onClose()
@@ -61,6 +60,7 @@ export function RescheduleModal({ isVisible, studentId, onClose, onSubmit }: Res
 			await addNewReschedule({
 				studentId,
 				schedule: {
+					deschedulededDate: new Date(defaultDate),
 					classDate: rescheduleDateTime
 				}
 			})

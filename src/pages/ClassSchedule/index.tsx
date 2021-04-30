@@ -10,7 +10,7 @@ import { Load } from '../../components/Load'
 import { RescheduleModal } from '../../components/RescheduleModal'
 
 import { useClasses } from '../../contexts/classes'
-import { Student as StudentProps } from '../../contexts/students'
+import { Student as StudentProps, useStudents } from '../../contexts/students'
 
 import { colors } from '../../styles/colors'
 
@@ -42,6 +42,7 @@ interface RouteParams {
 }
 
 export function ClassSchedule() {
+	const { fetchStudents } = useStudents()
 	const { getClassByDate, publishClass, updateClass } = useClasses()
 
 	const [isSubscription, setIsSubscription] = useState(true)
@@ -85,6 +86,10 @@ export function ClassSchedule() {
 		} finally {
 			setIsLoading(false)
 		}
+	}
+
+	async function handleOnSaveReschedule() {
+		await fetchStudents()
 	}
 
 	const handleHasMissed = useCallback(async (student: ClassStudentProps) => {
@@ -204,6 +209,8 @@ export function ClassSchedule() {
 				isVisible={showRescheduleModal}
 				onClose={() => setShowRescheduleModal(false)}
 				studentId={studentIdToReschedule}
+				onSubmit={handleOnSaveReschedule}
+				defaultDate={classDate}
 			/>
 
 			<Header>

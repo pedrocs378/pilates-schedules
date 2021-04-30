@@ -6,6 +6,7 @@ import { Container, Time, ClassStudents, Student } from './styles'
 interface StudentProps {
 	id: string
 	name: string
+	rescheduleded?: boolean
 }
 
 interface ClassStudent {
@@ -26,7 +27,8 @@ export function ClassCard({ classData, ...rest }: ClassCardProps) {
 			students: classData.students.map(student => {
 				return {
 					...student,
-					name: student.name.length > 12 ? `${student.name.substring(0, 12)}...` : student.name
+					name: student.name.length > 12 ? `${student.name.substring(0, 12)}...` : student.name,
+					rescheduleded: student.rescheduleded ? true : false
 				}
 			})
 		}
@@ -37,7 +39,7 @@ export function ClassCard({ classData, ...rest }: ClassCardProps) {
 			<Time>{classDataFormated.timeParsed}</Time>
 			<ClassStudents>
 				{classDataFormated.students.map(student => (
-					<Student key={student.id}>{student.name}</Student>
+					<Student key={student.id} isRescheduleded={student.rescheduleded}>{student.name}</Student>
 				))}
 			</ClassStudents>
 		</Container>

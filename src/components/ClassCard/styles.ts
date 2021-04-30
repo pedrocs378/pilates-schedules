@@ -1,7 +1,11 @@
-import styled from 'styled-components/native'
+import styled, { css } from 'styled-components/native'
 
 import { colors } from '../../styles/colors'
 import fonts from '../../styles/fonts'
+
+interface StudentProps {
+	isRescheduleded: boolean
+}
 
 export const Container = styled.TouchableOpacity`
 	flex-direction: row;
@@ -27,7 +31,10 @@ export const ClassStudents = styled.View`
 	flex-wrap: wrap;
 `
 
-export const Student = styled.Text`
+export const Student = styled.Text<StudentProps>`
+	${({ isRescheduleded }) => isRescheduleded && css`
+		text-decoration: line-through;
+	`}
 	font-family: ${fonts.complement};
 	font-size: 14px;
 	color: ${colors.black};

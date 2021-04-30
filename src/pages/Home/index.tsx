@@ -26,6 +26,7 @@ import {
 interface StudentProps {
 	id: string
 	name: string
+	rescheduleded?: boolean
 }
 
 interface ClassStudent {
@@ -118,13 +119,39 @@ export function Home() {
 		schedules = schedules.sort((a, b) => new Date(a).getHours() - new Date(b).getHours())
 
 		const classes = schedules.map(schedule => {
-			const studentsAtSametime = studentsOfDay.filter(student => {
-				return student.schedules.some(studentSchedule => (new Date(studentSchedule.time).getHours() === new Date(schedule).getHours()) && (studentSchedule.dayOfWeek.numberWeek === classDate.getDay()))
-			})
+			const studentsAtSametime = studentsOfDay
+				.filter(student => {
+					return student.schedules.some(studentSchedule => (new Date(studentSchedule.time).getHours() === new Date(schedule).getHours()) && (studentSchedule.dayOfWeek.numberWeek === classDate.getDay()))
+				})
+				.map(student => {
+					if (student.reschedules.some(schedule => {
+						const deschedulededDate = new Date(new Date(schedule.deschedulededDate).getFullYear(), new Date(schedule.deschedulededDate).getMonth(), new Date(schedule.deschedulededDate).getDate())
+						const classDateSelected = new Date(classDate.getFullYear(), classDate.getMonth(), classDate.getDate())
 
-			const studentsRescheduledAtSametime = studentsRescheduledOfDay.filter(student => {
-				return student.reschedules.some(studentReschedule => (new Date(studentReschedule.classDate).getHours() === new Date(schedule).getHours()) && (new Date(studentReschedule.classDate).getDay() === classDate.getDay()))
-			})
+						return isEqual(deschedulededDate, classDateSelected)
+					})) {
+						return {
+							...student,
+							rescheduleded: true
+						}
+					}
+
+					return {
+						...student,
+						rescheduleded: false
+					}
+				})
+
+			const studentsRescheduledAtSametime = studentsRescheduledOfDay
+				.filter(student => {
+					return student.reschedules.some(studentReschedule => (new Date(studentReschedule.classDate).getHours() === new Date(schedule).getHours()) && (new Date(studentReschedule.classDate).getDay() === classDate.getDay()))
+				})
+				.map(student => {
+					return {
+						...student,
+						rescheduleded: false
+					}
+				})
 
 			return {
 				timeParsed: format(new Date(schedule), 'HH:mm', { locale: ptBR }),
