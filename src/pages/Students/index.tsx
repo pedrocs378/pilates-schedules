@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import { Alert, ToastAndroid } from 'react-native'
-import { ScrollView } from 'react-native-gesture-handler'
+import { Alert, FlatList, ToastAndroid } from 'react-native'
 import FeatherIcon from 'react-native-vector-icons/Feather'
 
 import { RegisterStudentModal } from '../../components/RegisterStudentModal'
@@ -107,29 +106,33 @@ export function Students() {
 				onSubmit={handleReloadStudents}
 			/>
 
-			<ScrollView showsVerticalScrollIndicator={false}>
-				<SearchContainer>
-					<FeatherIcon name="search" color={colors.gray600} size={20} />
-					<InputSearch
-						placeholder="Procurar aluno..."
-						selectTextOnFocus
-						autoCorrect
-						autoCompleteType="name"
-						placeholderTextColor={colors.gray600}
-						onChangeText={handleSearchStudent}
+			<FlatList
+				showsVerticalScrollIndicator={false}
+				data={studentsToBeShow}
+				keyExtractor={item => String(item.id)}
+				renderItem={({ item }) => (
+					<StudentCard
+						key={item.id}
+						student={item}
+						onDelete={() => handleRemoveStudent(item)}
+						onPress={() => handleOpenOrCloseEditModal(true, item)}
 					/>
-				</SearchContainer>
-				{studentsToBeShow.map(student => {
-					return (
-						<StudentCard
-							key={student.id}
-							student={student}
-							onDelete={() => handleRemoveStudent(student)}
-							onPress={() => handleOpenOrCloseEditModal(true, student)}
+				)}
+				onEndReachedThreshold={0.1}
+				ListHeaderComponent={
+					<SearchContainer>
+						<FeatherIcon name="search" color={colors.gray600} size={20} />
+						<InputSearch
+							placeholder="Procurar aluno..."
+							selectTextOnFocus
+							autoCorrect
+							autoCompleteType="name"
+							placeholderTextColor={colors.gray600}
+							onChangeText={handleSearchStudent}
 						/>
-					)
-				})}
-			</ScrollView>
+					</SearchContainer>
+				}
+			/>
 
 			<RegisterStudentButton onPress={() => setIsRegisterStudentModalVisible(true)}>
 				<FeatherIcon name="plus" color={colors.white} size={25} />
