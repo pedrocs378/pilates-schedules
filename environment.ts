@@ -9,7 +9,7 @@ const getEnvVars = (env = Constants.manifest.releaseChannel) => {
 	} else if (env === 'prod') {
 		return ENV.prod
 	} else {
-		return ENV.dev
+		return ENV.prod
 	}
 }
 
