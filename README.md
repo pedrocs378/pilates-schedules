@@ -1,4 +1,7 @@
-# Agendamentos para aulas de pilates
+<h1 align="center">
+  <img alt="Logo Pilates" title="Logo Pilates" src=".github/logo.png" />
+</h1>
+
 
 ## :rocket: Tecnologias
 
